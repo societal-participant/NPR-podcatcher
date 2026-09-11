@@ -8,7 +8,7 @@ The NPR Podcatcher is a dedicated player appliance for listening to your favorit
 1. Base operating system
 
 -   **Raspberry Pi OS**
-    -   Debian Trixie
+    -   Debian Trixie Lite
 
 To fully update the system:
     
@@ -63,6 +63,7 @@ alsa/plughw:MAX98357A
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMT
-kwMjQ3NDgxLC0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbLTI4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMD
+E1NDA3NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYzNDEx
+MzI1XX0=
 -->
