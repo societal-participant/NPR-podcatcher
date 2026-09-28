@@ -3,6 +3,8 @@ The NPR Podcatcher is a dedicated player appliance for listening to your favorit
 
 ## About the Podcatcher
 ### Hardware Requirements
+The following hardware is required to build the podcatcher.
+
 ### Software Requirements
 
 1. Base operating system
@@ -63,7 +65,7 @@ alsa/plughw:MAX98357A
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTI4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMD
-E1NDA3NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYzNDEx
-MzI1XX0=
+eyJoaXN0b3J5IjpbMTE3MDA2NzEzMiwtMjgzNjEyODkwLC0xMT
+YzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0
+OTY5OSwtNjM0MTEzMjVdfQ==
 -->
