@@ -10,6 +10,8 @@ The following hardware is required to build the podcatcher.
  - [Adafruit Mono 2.5W Class D Audio Amplifier - PAM8302](https://www.adafruit.com/product/2130)
  - [8 Ohm 2 Watt Speaker w/ Wires - 36mm](https://www.adafruit.com/product/6486)
 
+### Hardware Assembly
+
 ### Software Requirements
 
 1. Base operating system requirement:
@@ -48,7 +50,7 @@ sudo apt install -y python3 python3-pip git alsa-utils mpv ffmpeg
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExNDQzMzkxNzgsLTI4MzYxMjg5MCwtMT
-E2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLTE3Nzkz
-NDk2OTksLTYzNDExMzI1XX0=
+eyJoaXN0b3J5IjpbMTQxNzI3MDYwMSwtMjgzNjEyODkwLC0xMT
+YzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0
+OTY5OSwtNjM0MTEzMjVdfQ==
 -->
