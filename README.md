@@ -38,28 +38,6 @@ Install these with:
 sudo apt install -y python3 python3-pip git alsa-utils mpv ffmpeg
 ```
 
-3. Audio system
-
--   ALSA installed/configured
--   MAX98357A ALSA device recognized
--   Verify with:
-    
-    ```
-    aplay -l
-    ```
-    
-
-The expected output:
-
-```
-card 0: MAX98357A
-```
-
-The player specifically targets:
-
-```
-alsa/plughw:MAX98357A
-```
 
 ## Installing the Podcatcher Files
 
@@ -70,7 +48,7 @@ alsa/plughw:MAX98357A
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE5MDA1NTMwMzcsLTI4MzYxMjg5MCwtMT
+eyJoaXN0b3J5IjpbLTExNDQzMzkxNzgsLTI4MzYxMjg5MCwtMT
 E2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLTE3Nzkz
 NDk2OTksLTYzNDExMzI1XX0=
 -->
