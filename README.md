@@ -5,8 +5,8 @@ The NPR Podcatcher is a dedicated player appliance for listening to your favorit
 ### Hardware Requirements
 The following hardware is required to build the podcatcher.
 
- - Raspberry Pi Zero WH (with Wifi and Headers)
- - Waveshare 2.8inch Capacitive Touch Screen LCD for Raspberry Pi, 480×640, DPI, IPS
+ - [Raspberry Pi Zero WH](https://www.waveshare.com/product/raspberry-pi/boards-kits/raspberry-pi-zero/raspberry-pi-zero-w.htm)H (with Wifi and Headers)
+ - [Waveshare 2.8inch Capacitive Touch Screen LCD for Raspberry Pi, 480×640, DPI, IPS](https://www.waveshare.com/2.8inch-dpi-lcd.htm)
 
 ### Software Requirements
 
@@ -68,7 +68,7 @@ alsa/plughw:MAX98357A
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYxNjIxNTg2MCwtMjgzNjEyODkwLC0xMT
+eyJoaXN0b3J5IjpbMTMyMjIxMzgwNCwtMjgzNjEyODkwLC0xMT
 YzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0
 OTY5OSwtNjM0MTEzMjVdfQ==
 -->
