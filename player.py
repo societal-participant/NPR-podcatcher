@@ -45,13 +45,15 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 # Override this per your actual hardware by setting "audio_filter" under
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
-    "highpass=f=160,"
+    "volume=-4dB,"
+    "highpass=f=240,"
+    "highpass=f=240,"
     "bass=g=-10:f=220:width_type=o:width=0.8,"
     "equalizer=f=300:width_type=o:width=1.2:g=-5,"
     "equalizer=f=2200:width_type=o:width=1.2:g=7,"
     "equalizer=f=1300:width_type=o:width=1.2:g=4,"
     "equalizer=f=3500:width_type=o:width=1.0:g=1,"
-    "treble=g=5:f=5000:width_type=o:width=0.7,"
+    "treble=g=6:f=5500:width_type=o:width=0.7,"
     "acompressor=threshold=0.12:ratio=3:attack=15:release=250:makeup=2,"
     "alimiter=limit=0.95"
 )
@@ -443,6 +445,11 @@ def position_monitor():
                 last_pos = 0
                 advance_queue()
 
+                # If nothing else started, playback is over: clear the
+                # current episode so the app (and cleanup) treat mpv as idle.
+                if current_episode_id == ep_id:
+                    current_episode_id = None
+
         time.sleep(5)
 
 def advance_queue():
@@ -741,7 +748,9 @@ def cleanup_played():
     print()
 
     for ep_id, show_name, title, filename in rows:
-        if ep_id == current_episode_id:
+        # current_episode_id stays set after an episode finishes, so only
+        # skip it if mpv is genuinely still playing that file.
+        if ep_id == current_episode_id and get_position() is not None:
             print(f"  Skipping currently playing: {show_name}: {title}")
             continue
 

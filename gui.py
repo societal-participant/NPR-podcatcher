@@ -35,6 +35,7 @@ import sqlite3
 import threading
 import time
 import contextlib
+import io
 
 import pygame
 
@@ -237,6 +238,18 @@ def truncate_to_width(text, font, max_width):
     return text + ellipsis
 
 
+# All marquees share one start time. Resetting it (on every screen change
+# and list scroll) makes long titles sit still for INITIAL_HOLD seconds
+# first, so you can read the beginning before anything starts moving.
+INITIAL_HOLD = 3.0
+_marquee_epoch = time.time()
+
+
+def reset_marquee():
+    global _marquee_epoch
+    _marquee_epoch = time.time()
+
+
 def draw_marquee_text(canvas, text, font, color, rect, align="center",
                        hold_seconds=1.5, scroll_seconds=4.0):
     """Draws text within rect. If it fits, drawn once (centered or
@@ -255,7 +268,12 @@ def draw_marquee_text(canvas, text, font, color, rect, align="center",
 
     overflow = surf.get_width() - rect.width
     period = 2 * hold_seconds + 2 * scroll_seconds
-    t = time.time() % period
+    elapsed = time.time() - _marquee_epoch
+    if elapsed < INITIAL_HOLD:
+        t = 0
+    else:
+        # Continue the normal cycle right at the start of the first scroll.
+        t = (elapsed - INITIAL_HOLD + hold_seconds) % period
 
     if t < hold_seconds:
         offset = 0
@@ -324,6 +342,10 @@ class App:
 
         self.confirm_delete = False
 
+        # Short-lived banner shown after Cleanup Played: (text, expiry time)
+        self.toast_text = ""
+        self.toast_until = 0
+
         self.check_thread = None
         self.check_log = collections.deque(maxlen=6)
 
@@ -378,6 +400,7 @@ class App:
 
     def go_to(self, state):
         self.state = state
+        reset_marquee()
         self.confirm_delete = False
 
     def go_to_shows(self):
@@ -455,7 +478,36 @@ class App:
         self.confirm_delete = False
 
     def run_cleanup(self):
-        player.cleanup_played()
+        # cleanup_played() reports by printing, so capture that to count
+        # what happened, then echo it so it still reaches the log.
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            player.cleanup_played()
+        output = buf.getvalue()
+        print(output, end="")
+
+        deleted = sum(
+            1 for ln in output.splitlines() if ln.strip().startswith("Deleted:")
+        )
+        errors = sum(
+            1 for ln in output.splitlines() if ln.strip().startswith("ERROR")
+        )
+        skipped = sum(
+            1 for ln in output.splitlines() if "Skipping currently" in ln
+        )
+
+        if errors:
+            text = f"Cleanup had {errors} error(s)"
+        elif deleted:
+            text = f"Deleted {deleted} played episode(s)"
+        elif skipped:
+            text = "Only the episode now playing is played"
+        else:
+            text = "No played episodes to delete"
+
+        self.selected_ids = set()
+        self.toast_text = text
+        self.toast_until = time.time() + 3
 
     # -- drawing per screen --
 
@@ -623,26 +675,48 @@ class App:
             row_rect = pygame.Rect(15, y, LOGICAL_WIDTH - 30, row_height - 8)
             row_rects.append(row_rect)
 
-            selected = on_row_tap is self.toggle_selected and item[0] in self.selected_ids
+            selected = on_row_tap == self.toggle_selected and item[0] in self.selected_ids
             bg = PANEL_SELECTED if selected else PANEL_BG
             pygame.draw.rect(self.canvas, bg, row_rect, border_radius=8)
             pygame.draw.rect(self.canvas, BORDER, row_rect, width=1, border_radius=8)
 
             main_text, sub_text = row_labels(item)
 
+            # Episodes rows get a real checkbox in its own column, so it
+            # stays put while a long title scrolls beside it.
+            has_checkbox = on_row_tap == self.toggle_selected
+            text_left = row_rect.left + 15
+            if has_checkbox:
+                box = pygame.Rect(0, 0, 36, 36)
+                box.midleft = (row_rect.left + 15, row_rect.centery)
+                pygame.draw.rect(
+                    self.canvas, ACCENT if selected else BG, box, border_radius=6
+                )
+                pygame.draw.rect(self.canvas, ACCENT, box, width=2, border_radius=6)
+                if selected:
+                    pygame.draw.lines(
+                        self.canvas, TEXT, False,
+                        [
+                            (box.left + 8, box.centery),
+                            (box.left + 15, box.bottom - 10),
+                            (box.right - 8, box.top + 9),
+                        ],
+                        4,
+                    )
+                text_left = box.right + 14
+            text_width = row_rect.right - 15 - text_left
+
             title_line_height = self.font_large.get_linesize()
             if sub_text:
                 # Two-line layout (Episodes): title on top, status below.
                 title_rect = pygame.Rect(
-                    row_rect.left + 15, row_rect.top + 6,
-                    row_rect.width - 30, title_line_height,
+                    text_left, row_rect.top + 6, text_width, title_line_height,
                 )
             else:
                 # Single-line layout (Shows): center the title in the
                 # whole row instead of leaving it pinned near the top.
                 title_rect = pygame.Rect(
-                    row_rect.left + 15, row_rect.top,
-                    row_rect.width - 30, row_rect.height,
+                    text_left, row_rect.top, text_width, row_rect.height,
                 )
 
             draw_marquee_text(
@@ -651,7 +725,7 @@ class App:
 
             if sub_text:
                 sub_surf = self.font_medium.render(sub_text, True, TEXT_DIM)
-                self.canvas.blit(sub_surf, (row_rect.left + 15, title_rect.bottom + 4))
+                self.canvas.blit(sub_surf, (text_left, title_rect.bottom + 4))
 
         self.canvas.set_clip(prev_clip)
 
@@ -682,8 +756,7 @@ class App:
         def labels(ep):
             ep_id, title, played, position = ep
             status = episode_status_text(played, position)
-            checked = "[x] " if ep_id in self.selected_ids else "[ ] "
-            return checked + title, status
+            return title, status
 
         play_btn = Button(
             (15, LOGICAL_HEIGHT - 80, 200, 65),
@@ -719,6 +792,18 @@ class App:
 
         if self.confirm_delete:
             self._draw_confirm_delete()
+
+        self._draw_toast()
+
+    def _draw_toast(self):
+        if not self.toast_text or time.time() > self.toast_until:
+            return
+        rect = pygame.Rect(60, LOGICAL_HEIGHT - 160, LOGICAL_WIDTH - 120, 56)
+        pygame.draw.rect(self.canvas, PANEL_BG, rect, border_radius=10)
+        pygame.draw.rect(self.canvas, ACCENT, rect, width=2, border_radius=10)
+        shown = truncate_to_width(self.toast_text, self.font_medium, rect.width - 30)
+        surf = self.font_medium.render(shown, True, TEXT)
+        self.canvas.blit(surf, surf.get_rect(center=rect.center))
 
     def _draw_confirm_delete(self):
         overlay = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
@@ -833,6 +918,7 @@ class App:
         key = "EPISODES" if self.state == "EPISODES" else "SHOWS"
         if self.state in ("SHOWS", "EPISODES"):
             self.scroll_offset[key] -= dy
+            reset_marquee()
 
     def run(self):
         clock = pygame.time.Clock()

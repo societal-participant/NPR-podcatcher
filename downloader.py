@@ -12,6 +12,8 @@ from datetime import datetime
 
 import feedparser
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 BASE_DIR = os.path.expanduser("~/npr")
 CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
@@ -157,6 +159,15 @@ def download_episode(url, filename, timeout, session=None):
             if total:
                 print()
 
+        # A "successful" request can still hand back an empty or cut-off
+        # body. Treat that as a failure so it never gets saved as the
+        # episode (and the .part file is cleaned up below).
+        if downloaded == 0 or (total and downloaded < total):
+            raise IOError(
+                f"incomplete download ({downloaded} of "
+                f"{total if total else 'unknown'} bytes)"
+            )
+
         os.replace(temp_filename, filename)
         return True
 
@@ -297,7 +308,8 @@ def process_show(conn, show_id, show, settings, feed, session=None):
                 continue
 
             # Already downloaded and still present.
-            if downloaded and filepath and os.path.exists(filepath):
+            if (downloaded and filepath and os.path.exists(filepath)
+                    and os.path.getsize(filepath) > 0):
                 continue
 
             print()
@@ -441,6 +453,20 @@ def main():
         # Zero W's single slow core. Safe to share across the feed-check
         # threads because these are plain stateless GETs (no cookies/auth).
         session = requests.Session()
+        # Retry dropped/failed connections (e.g. a TLS "EOF" from a flaky
+        # WiFi link or the server closing a connection) with a short
+        # backoff, instead of failing the whole check on the first hiccup.
+        retry = Retry(
+            total=4,
+            connect=4,
+            read=3,
+            backoff_factor=1.5,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=("GET",),
+        )
+        adapter = HTTPAdapter(max_retries=retry, pool_maxsize=8)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
 
         results = {}
         with concurrent.futures.ThreadPoolExecutor(
