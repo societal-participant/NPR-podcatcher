@@ -2,6 +2,7 @@
   "settings": {
     "initial_downloads": 3,
     "download_timeout": 300,
+    "feed_timeout": 15,
     "audio_directory": "/home/pi/npr/audio"
   },
 
@@ -22,24 +23,6 @@
       "name": "Consider This",
       "feed": "https://feeds.npr.org/510355/podcast.xml",
       "enabled": true
-    },
-
-    "code-switch": {
-      "name": "Code Switch",
-      "feed": "https://feeds.npr.org/510312/podcast.xml",
-      "enabled": true
-    },
-
-    "wait-wait": {
-      "name": "Wait Wait... Don't Tell Me!",
-      "feed": "https://feeds.npr.org/344098539/podcast.xml",
-      "enabled": true
-    },
-
-    "morning-edition": {
-      "name": "Morning Edition",
-      "feed": null,
-      "enabled": false
     }
   }
 }
