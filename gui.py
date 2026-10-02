@@ -130,7 +130,13 @@ def delete_episodes(ep_ids):
                 os.remove(row[0])
             except OSError:
                 pass
-        conn.execute("DELETE FROM episodes WHERE id = ?", (ep_id,))
+        # Keep the row (marked played, file gone) so the downloader still
+        # recognises the GUID and never fetches this episode again.
+        conn.execute(
+            "UPDATE episodes SET downloaded = 0, played = 1, position = 0 "
+            "WHERE id = ?",
+            (ep_id,),
+        )
     conn.commit()
     conn.close()
 
@@ -420,6 +426,11 @@ class App:
         if player.current_episode_id is not None:
             player.send_mpv(["cycle", "pause"])
 
+    def seek(self, seconds):
+        """Jump forward (+) or back (-) by the given number of seconds."""
+        if player.current_episode_id is not None:
+            player.send_mpv(["seek", seconds, "relative"])
+
     def toggle_selected(self, ep_id):
         if ep_id in self.selected_ids:
             self.selected_ids.discard(ep_id)
@@ -537,6 +548,20 @@ class App:
         )
         play_btn.draw(self.canvas, self.font_medium)
         self.buttons.append(play_btn)
+
+        has_ep = player.current_episode_id is not None
+        back_btn = Button(
+            (30, 280, 170, 70), "- 30s", lambda: self.seek(-30), enabled=has_ep
+        )
+        back_btn.draw(self.canvas, self.font_medium)
+        self.buttons.append(back_btn)
+
+        fwd_btn = Button(
+            (LOGICAL_WIDTH - 200, 280, 170, 70), "+ 30s",
+            lambda: self.seek(30), enabled=has_ep,
+        )
+        fwd_btn.draw(self.canvas, self.font_medium)
+        self.buttons.append(fwd_btn)
 
         shows_btn = Button((30, 390, 220, 70), "Shows", self.go_to_shows)
         shows_btn.draw(self.canvas, self.font_medium)

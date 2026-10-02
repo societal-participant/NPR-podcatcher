@@ -38,6 +38,10 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 #   acompressor - evens out loudness across quiet/loud speech.
 #   alimiter    - final safety ceiling so nothing clips.
 #
+# Retuned by ear for the PAM8302 + bare speaker: heavy low-end cut for
+# boomy low voices, then boosts at 1.3kHz and 2.2kHz for body and
+# consonant clarity, a small lift at 3.5kHz, and a treble shelf from 5kHz.
+#
 # Override this per your actual hardware by setting "audio_filter" under
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
@@ -46,8 +50,8 @@ DEFAULT_AUDIO_FILTER = (
     "equalizer=f=300:width_type=o:width=1.2:g=-5,"
     "equalizer=f=2200:width_type=o:width=1.2:g=7,"
     "equalizer=f=1300:width_type=o:width=1.2:g=4,"
-    "equalizer=f=3500:width_type=o:width=1.0:g=0,"
-    "treble=g=6:f=5000:width_type=o:width=0.7,"
+    "equalizer=f=3500:width_type=o:width=1.0:g=1,"
+    "treble=g=5:f=5000:width_type=o:width=0.7,"
     "acompressor=threshold=0.12:ratio=3:attack=15:release=250:makeup=2,"
     "alimiter=limit=0.95"
 )
@@ -401,8 +405,16 @@ def position_monitor():
     global position_thread_running
     global current_episode_id
 
+    last_ep = None
+    last_pos = 0
+    last_dur = None
+
     while position_thread_running:
         ep_id = current_episode_id
+
+        if ep_id != last_ep:
+            last_ep, last_pos, last_dur = ep_id, 0, None
+
         if ep_id is not None:
             position = get_position()
             duration = get_duration()
@@ -414,11 +426,22 @@ def position_monitor():
                 continue
 
             if position is not None:
-                if duration and position >= duration - 5:
+                last_pos = position
+                if duration:
+                    last_dur = duration
+
+                if duration and position >= duration - 15:
                     save_position(ep_id, 0, played=True)
                     advance_queue()
                 else:
                     save_position(ep_id, position)
+
+            elif last_dur and last_pos >= last_dur - 30:
+                # mpv has no position because the file already ended
+                # between checks - treat that as finished, not unfinished.
+                save_position(ep_id, 0, played=True)
+                last_pos = 0
+                advance_queue()
 
         time.sleep(5)
 
