@@ -9,6 +9,7 @@ The following hardware is required to build the podcatcher.
  - [Waveshare 2.8inch Capacitive Touch Screen LCD for Raspberry Pi, 480×640, DPI, IPS](https://www.waveshare.com/2.8inch-dpi-lcd.htm)
  - [Adafruit Mono 2.5W Class D Audio Amplifier - PAM8302](https://www.adafruit.com/product/2130)
  - [8 Ohm 2 Watt Speaker w/ Wires - 36mm](https://www.adafruit.com/product/6486)
+ - [USB Audio Adapter (needs to work with Raspberry Pi)] (https://www.adafruit.com/product/1475) 
 
 ### Hardware Assembly
 
@@ -50,7 +51,7 @@ sudo apt install -y python3 python3-pip git alsa-utils mpv ffmpeg
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTQxNzI3MDYwMSwtMjgzNjEyODkwLC0xMT
-YzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0
-OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbNzM0OTM3ODIwLDE0MTcyNzA2MDEsLTI4Mz
+YxMjg5MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0
+ODEsLTE3NzkzNDk2OTksLTYzNDExMzI1XX0=
 -->
