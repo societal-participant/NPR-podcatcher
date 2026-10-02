@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
+import concurrent.futures
 import hashlib
 import json
 import os
 import re
 import sqlite3
 import subprocess
+import time
 from datetime import datetime
 
 import feedparser
@@ -47,7 +49,40 @@ def init_database():
         conn.execute("ALTER TABLE episodes ADD COLUMN duration REAL")
         conn.commit()
 
+    # Tracks ETag/Last-Modified per show so an unchanged feed can be
+    # skipped with a cheap conditional GET instead of a full re-download
+    # and re-parse every single check.
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS feed_state (
+            show_id TEXT PRIMARY KEY,
+            etag TEXT,
+            last_modified TEXT
+        )
+    """)
+
     return conn
+
+
+def get_feed_state(conn, show_id):
+    row = conn.execute(
+        "SELECT etag, last_modified FROM feed_state WHERE show_id = ?",
+        (show_id,),
+    ).fetchone()
+    return row if row else (None, None)
+
+
+def save_feed_state(conn, show_id, etag, last_modified):
+    conn.execute(
+        """
+        INSERT INTO feed_state (show_id, etag, last_modified)
+        VALUES (?, ?, ?)
+        ON CONFLICT(show_id) DO UPDATE SET
+            etag = excluded.etag,
+            last_modified = excluded.last_modified
+        """,
+        (show_id, etag, last_modified),
+    )
+    conn.commit()
 
 
 def safe_filename(text):
@@ -84,12 +119,13 @@ def get_audio_duration(filename):
         return None
 
 
-def download_episode(url, filename, timeout):
+def download_episode(url, filename, timeout, session=None):
     temp_filename = filename + ".part"
     print("      Downloading...")
+    http = session or requests
 
     try:
-        with requests.get(
+        with http.get(
             url,
             stream=True,
             timeout=timeout,
@@ -134,32 +170,95 @@ def download_episode(url, filename, timeout):
         return False
 
 
-def fetch_feed(feed_url, timeout):
-    """Fetch an RSS feed with an explicit timeout, then parse it."""
-    response = requests.get(
-        feed_url,
-        timeout=timeout,
-        headers={"User-Agent": "NPR-Pi/1.0"},
+def read_feed_head(response, max_items):
+    """Read just enough of a streamed RSS response to capture its first
+    max_items <item> elements, then stop and hang up. Some feeds have
+    hundreds of episodes (megabytes of XML) and we only ever use the
+    newest few, so downloading and parsing the rest is pure waste -- and on
+    a Zero W it is the slowest part of checking. If the feed turns out to
+    be shorter than max_items (or isn't RSS-style), we simply end up
+    reading all of it, same as before."""
+    end_tag = b"</item>"
+    buf = bytearray()
+    search_from = 0
+    found = 0
+
+    for chunk in response.iter_content(chunk_size=16384):
+        if not chunk:
+            continue
+        buf.extend(chunk)
+
+        while True:
+            pos = buf.find(end_tag, search_from)
+            if pos == -1:
+                break
+            found += 1
+            search_from = pos + len(end_tag)
+            if found >= max_items:
+                response.close()
+                # Close the tags we cut off so the XML is well-formed.
+                return bytes(buf[:search_from]) + b"</channel></rss>"
+
+    return bytes(buf)
+
+
+def fetch_feed(feed_url, timeout, etag=None, last_modified=None,
+               session=None, max_items=3):
+    """Fetch the top of an RSS feed, using conditional GET (ETag /
+    Last-Modified) so an unchanged feed costs one small round trip
+    instead of a download and a parse. Returns:
+        (feed_or_None, new_etag, new_last_modified, unchanged)
+    feed is None only when unchanged is True.
+    """
+    headers = {"User-Agent": "NPR-Pi/1.0"}
+    if etag:
+        headers["If-None-Match"] = etag
+    if last_modified:
+        headers["If-Modified-Since"] = last_modified
+
+    response = (session or requests).get(
+        feed_url, timeout=timeout, headers=headers, stream=True
     )
-    response.raise_for_status()
-    return feedparser.parse(response.content)
-
-
-def update_show(conn, show_id, show, settings):
-    print()
-    print("=" * 60)
-    print(show["name"])
-    print("=" * 60)
-    print("      Checking feed...")
 
     try:
-        feed = fetch_feed(
+        if response.status_code == 304:
+            return None, etag, last_modified, True
+
+        response.raise_for_status()
+
+        feed = feedparser.parse(read_feed_head(response, max_items))
+        new_etag = response.headers.get("ETag", etag)
+        new_last_modified = response.headers.get("Last-Modified", last_modified)
+        return feed, new_etag, new_last_modified, False
+    finally:
+        response.close()
+
+
+def check_feed(show_id, show, settings, etag, last_modified, session=None):
+    """Runs in a worker thread: network + parsing only. No DB access and
+    no printing here - concurrent prints from multiple threads interleave
+    and garble the console, and sqlite connections aren't safe to share
+    across threads. Returns a plain result tuple for the main thread to
+    act on once all checks have finished."""
+    try:
+        feed, new_etag, new_last_modified, unchanged = fetch_feed(
             show["feed"],
-            settings.get("download_timeout", 300),
+            settings.get("feed_timeout", 15),
+            etag,
+            last_modified,
+            session,
+            settings.get("initial_downloads", 3),
         )
+        return show_id, feed, new_etag, new_last_modified, unchanged, None
     except requests.RequestException as e:
-        print(f"      ERROR: Could not fetch feed: {e}")
-        return
+        return show_id, None, etag, last_modified, False, e
+
+
+def process_show(conn, show_id, show, settings, feed, session=None):
+    """Downloads new/retry episodes from an already-fetched feed. The feed
+    itself is fetched separately (and possibly concurrently, across shows)
+    by check_feed; this function only ever runs on the main thread, since
+    it touches the shared sqlite connection."""
 
     if not feed.entries:
         print("      ERROR: No episodes found.")
@@ -212,6 +311,7 @@ def update_show(conn, show_id, show, settings):
                 audio_url,
                 filepath,
                 settings.get("download_timeout", 300),
+                session,
             )
 
             if success:
@@ -247,6 +347,7 @@ def update_show(conn, show_id, show, settings):
             audio_url,
             filepath,
             settings.get("download_timeout", 300),
+            session,
         )
         duration = get_audio_duration(filepath) if success else None
         now = datetime.now().isoformat(timespec="seconds")
@@ -305,14 +406,90 @@ def main():
     print("========================================")
 
     try:
+        enabled_shows = {}
         for show_id, show in config["shows"].items():
             if not show.get("enabled", False):
                 continue
             if not show.get("feed"):
                 print(f"Skipping {show.get('name', show_id)}: no feed configured.")
                 continue
+            enabled_shows[show_id] = show
 
-            update_show(conn, show_id, show, config["settings"])
+        if not enabled_shows:
+            print()
+            print("No enabled shows with a feed configured.")
+            return
+
+        # Feed state (etag/last-modified) is read/written here, on the
+        # main thread only, since sqlite connections aren't safe to share
+        # across threads. The fetches themselves are pure network I/O
+        # though, so those run concurrently below - this is what actually
+        # speeds up "checking": without it, a slow feed makes every other
+        # show wait behind it instead of being checked at the same time.
+        feed_states = {
+            show_id: get_feed_state(conn, show_id) for show_id in enabled_shows
+        }
+
+        print()
+        print(f"Checking {len(enabled_shows)} feed(s)...")
+        for show in enabled_shows.values():
+            print(f"  - {show['name']}")
+
+        # One shared session for the whole run: connections to the same
+        # host get reused (HTTP keep-alive) instead of paying for a fresh
+        # TCP + TLS handshake on every request -- a real cost on the
+        # Zero W's single slow core. Safe to share across the feed-check
+        # threads because these are plain stateless GETs (no cookies/auth).
+        session = requests.Session()
+
+        results = {}
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(8, len(enabled_shows))
+        ) as pool:
+            futures = {
+                pool.submit(
+                    check_feed, show_id, show, config["settings"], *feed_states[show_id], session
+                ): show_id
+                for show_id, show in enabled_shows.items()
+            }
+            # Checks run concurrently, but we still print as each one
+            # finishes (in whatever order they complete, not necessarily
+            # the order above) so there's visible progress the whole time
+            # rather than silence until every single one is done.
+            for future in concurrent.futures.as_completed(futures):
+                show_id, feed, new_etag, new_last_modified, unchanged, error = future.result()
+                results[show_id] = (feed, new_etag, new_last_modified, unchanged, error)
+
+                name = enabled_shows[show_id]["name"]
+                if error:
+                    print(f"  {name}: check failed ({error})")
+                elif unchanged:
+                    print(f"  {name}: unchanged")
+                elif not feed.entries:
+                    print(f"  {name}: feed has no episodes")
+                else:
+                    print(f"  {name}: latest episodes read")
+
+        # Process in the original config order, sequentially, so output
+        # stays readable and every download/DB write happens single-threaded.
+        for show_id, show in enabled_shows.items():
+            feed, new_etag, new_last_modified, unchanged, error = results[show_id]
+
+            print()
+            print("=" * 60)
+            print(show["name"])
+            print("=" * 60)
+
+            if error:
+                print(f"      ERROR: Could not fetch feed: {error}")
+                continue
+
+            if unchanged:
+                print("      Feed unchanged since last check - skipping.")
+                continue
+
+            save_feed_state(conn, show_id, new_etag, new_last_modified)
+            process_show(conn, show_id, show, config["settings"], feed, session)
 
         print()
         print("========================================")

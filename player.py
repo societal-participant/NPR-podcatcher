@@ -17,7 +17,7 @@ BASE_DIR = os.path.expanduser("~/npr")
 
 CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 
-# Default audio shaping for small class-D speakers like the MAX98357A kit.
+# Default audio shaping for small class-D speakers like the PAM8302 amp.
 # These tend to have a harsh, boxy resonance somewhere in the 2-6kHz range
 # and almost no body below ~300Hz, which can read as "tin can" - but
 # overcorrecting swings the other way into "muffled," and a boost anywhere
@@ -41,12 +41,13 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 # Override this per your actual hardware by setting "audio_filter" under
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
-    "highpass=f=130,"
-    "bass=g=-4:f=200:width_type=o:width=0.8,"
-    "equalizer=f=350:width_type=o:width=1.2:g=-3,"
-    "equalizer=f=1800:width_type=o:width=1.0:g=2,"
-    "equalizer=f=3000:width_type=o:width=1.0:g=-3,"
-    "treble=g=3:f=7000:width_type=o:width=0.7,"
+    "highpass=f=160,"
+    "bass=g=-10:f=220:width_type=o:width=0.8,"
+    "equalizer=f=300:width_type=o:width=1.2:g=-5,"
+    "equalizer=f=2200:width_type=o:width=1.2:g=7,"
+    "equalizer=f=1300:width_type=o:width=1.2:g=4,"
+    "equalizer=f=3500:width_type=o:width=1.0:g=0,"
+    "treble=g=6:f=5000:width_type=o:width=0.7,"
     "acompressor=threshold=0.12:ratio=3:attack=15:release=250:makeup=2,"
     "alimiter=limit=0.95"
 )
@@ -190,7 +191,7 @@ def start_mpv():
 
             "--really-quiet",
 
-            "--audio-device=alsa/plughw:MAX98357A",
+            "--audio-device=alsa/plughw:CARD=Device,DEV=0",
 
             "--volume=100",
 
@@ -212,7 +213,9 @@ def start_mpv():
 
     # Wait for mpv to create a working IPC socket.
 
-    for _ in range(100):
+    # mpv can take well over 10s to start on a Pi Zero W, especially while
+    # the GUI is also running, so allow up to 60s.
+    for _ in range(600):
 
         if process.poll() is not None:
 
@@ -259,6 +262,20 @@ def start_mpv():
     if process.poll() is None:
 
         process.terminate()
+
+        try:
+
+            process.wait(timeout=3)
+
+            error = process.stderr.read().strip()
+
+            if error:
+
+                print("mpv:", error)
+
+        except Exception:
+
+            pass
 
     return False
 
