@@ -27,18 +27,10 @@ To fully update the system:
     sudo apt upgrade -y
     
     
-2. Essential system packages
-
--   Python 3
--   Git
--   ALSA utilities
--   mpv
--   FFmpeg
-
-Install these with:
-
+2. Install essential system packages
 ```
-sudo apt install -y python3 python3-pip git alsa-utils mpv ffmpeg
+sudo apt update
+sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparser
 ```
 
 
@@ -51,7 +43,8 @@ sudo apt install -y python3 python3-pip git alsa-utils mpv ffmpeg
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMj
-gzNjEyODkwLC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0
-NzQ4MSwtMTc3OTM0OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbNzY0Mzg0MjgyLC0xMTQ1OTE4NjYwLDE0MT
+cyNzA2MDEsLTI4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMDE1NDA3
+NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYzNDExMzI1XX
+0=
 -->
