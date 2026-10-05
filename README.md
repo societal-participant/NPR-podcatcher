@@ -44,6 +44,10 @@ Assembling the podcatcher requires you to complete the following steps:
 ### Assembling the Amp
 After assembling the Pi, do the following:
 
+ 1. Solder the included header pins and terminal to the amp board if they are not already soldered.
+ 2. Solder the **Ground** wire from the Pi (pin 6) to the **Ground** pin on the amp.
+ 3. Solder the P
+
 ### Connecting Everything
 
 
@@ -54,7 +58,7 @@ After assembling the Pi, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTM5MjIwOTA3OCwzMzI4OTEyMzMsNzY0Mz
+eyJoaXN0b3J5IjpbLTgwOTA1NDM5OCwzMzI4OTEyMzMsNzY0Mz
 g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
 MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
 E3NzkzNDk2OTksLTYzNDExMzI1XX0=
