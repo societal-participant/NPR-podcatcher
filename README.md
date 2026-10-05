@@ -11,8 +11,6 @@ The following hardware is required to build the podcatcher.
  - [8 Ohm 2 Watt Speaker w/ Wires - 36mm](https://www.adafruit.com/product/6486)
  - [USB Audio Adapter](https://www.adafruit.com/product/1475) (needs to work with Raspberry Pi)
 
-### Hardware Assembly
-
 ### Software Requirements
 
 1. Base operating system requirement:
@@ -43,8 +41,8 @@ sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparse
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNzY0Mzg0MjgyLC0xMTQ1OTE4NjYwLDE0MT
-cyNzA2MDEsLTI4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMDE1NDA3
-NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYzNDExMzI1XX
-0=
+eyJoaXN0b3J5IjpbMzMyODkxMjMzLDc2NDM4NDI4MiwtMTE0NT
+kxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4OTAsLTExNjMwMTY3
+NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC0xNzc5MzQ5Njk5LC
+02MzQxMTMyNV19
 -->
