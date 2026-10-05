@@ -31,18 +31,20 @@ sudo apt update
 sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparser
 ```
 
+## Assembling the Podcatcher
+Assembling the podcatcher requires you to complete the following steps:
+
+ 1. 
 
 ## Installing the Podcatcher Files
 
 ## Configuring the Podcatcher
 
-## Assembling the Podcatcher
-
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE3ODAyODc1MDksMzMyODkxMjMzLDc2ND
-M4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4
-OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC
-0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbMTMzNzA5MDA3MywzMzI4OTEyMzMsNzY0Mz
+g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
+MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
+E3NzkzNDk2OTksLTYzNDExMzI1XX0=
 -->
