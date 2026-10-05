@@ -16,7 +16,8 @@ Additionally, you will need two different colors of 22g wire to solder the amp t
 You will also need a basic audio cable with a male jack that will be connected to the USB adapter and be soldered to the amp. The audio cable should measure about 5-6 inches in length.
 
 To hold everything together for convenience, you should also 3D print the following Pi Zero stand. It's a simple basic stand designed for the Pi Zero that works really well with this project.
-Raspberry Pi
+
+[Raspberry Pi Zero Stand](https://learn.adafruit.com/raspberry-pi-zero-stand/3d-printing)
 
 ### Software Requirements
 The NPR podcatcher runs on Raspberry Pi Bookworm Lite. There is no graphical desktop UI.
@@ -61,7 +62,6 @@ After assembling the amp, do the following:
 
  1. Insert the audio cable into the audio jack on the USB adapter. Be careful to insert it in the correct jack.
  2. Plug the USB adapter into the USB micro-USB port on the Raspberry Pi Zero. If necessary, use a USB to micro-USB adapter to plug in to the Pi.
- 3. 
 
 ## Installing the Podcatcher Files
 
@@ -70,8 +70,8 @@ After assembling the amp, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMjYzNDgxNywzMzI4OTEyMzMsNzY0Mz
-g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
-MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
-E3NzkzNDk2OTksLTYzNDExMzI1XX0=
+eyJoaXN0b3J5IjpbLTE1NDM1NTkxNjIsMzMyODkxMjMzLDc2ND
+M4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4
+OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC
+0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
 -->
