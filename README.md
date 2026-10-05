@@ -46,7 +46,9 @@ After assembling the Pi, do the following:
 
  1. Solder the included header pins and terminal to the amp board if they are not already soldered.
  2. Solder the **Ground** wire from the Pi (pin 6) to the **Ground** pin on the amp.
- 3. Solder the P
+ 3. Solder the **Power** wire (pin 4) to the **Vin** pin on the amp.
+ 4. Cut the audio cable so that the two inner wires are exposed. You should see a red wire and a black wire.
+ 5. 
 
 ### Connecting Everything
 
@@ -58,8 +60,8 @@ After assembling the Pi, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgwOTA1NDM5OCwzMzI4OTEyMzMsNzY0Mz
-g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
-MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
-E3NzkzNDk2OTksLTYzNDExMzI1XX0=
+eyJoaXN0b3J5IjpbNDI3NDk1ODQ1LDMzMjg5MTIzMyw3NjQzOD
+QyODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkw
+LC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMT
+c3OTM0OTY5OSwtNjM0MTEzMjVdfQ==
 -->
