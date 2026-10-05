@@ -12,12 +12,7 @@ The following hardware is required to build the podcatcher.
  - [USB Audio Adapter](https://www.adafruit.com/product/1475) (needs to work with Raspberry Pi)
 
 ### Software Requirements
-The NPR podcatcher runs on Raspberry Pi
-
-1. Base operating system requirement:
-
--   **Raspberry Pi OS**
-    -   Debian Bookworm Lite 
+The NPR podcatcher runs on Raspberry Pi Bookworm Lite. There is no graphical desktop UI.
 
 To fully update the system:
     
@@ -26,7 +21,7 @@ To fully update the system:
     sudo apt upgrade -y
     
     
-2. Install essential system packages
+After updating, install essential system packages
 ```
 sudo apt update
 sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparser
@@ -42,8 +37,8 @@ sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparse
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTc5MjAzNzUzLDMzMjg5MTIzMyw3NjQzOD
-QyODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkw
-LC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMT
-c3OTM0OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbLTExMTIwMjU5NzQsMzMyODkxMjMzLDc2ND
+M4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4
+OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC
+0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
 -->
