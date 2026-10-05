@@ -56,7 +56,8 @@ After assembling the Pi, do the following:
 
 After assembling the amp, do the following:
 
- 1. Insert the audio cable into the audio jack on the amp. Be careful not to insert it into the MIC
+ 1. Insert the audio cable into the audio jack on the USB adapter. Be careful to insert it in the correct jack.
+ 2. Plug the USB adapter into the Raspberry Pi Zero. 
 
 ## Installing the Podcatcher Files
 
@@ -65,7 +66,7 @@ After assembling the amp, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTI5NTYxOTk1NCwzMzI4OTEyMzMsNzY0Mz
+eyJoaXN0b3J5IjpbLTIzMTY3MTA1MywzMzI4OTEyMzMsNzY0Mz
 g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
 MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
 E3NzkzNDk2OTksLTYzNDExMzI1XX0=
