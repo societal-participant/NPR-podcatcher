@@ -23,6 +23,11 @@
       "name": "Consider This",
       "feed": "https://feeds.npr.org/510355/podcast.xml",
       "enabled": true
+    },
+    "life-kit": {
+      "name": "Life Kit",
+      "feed": "https://feeds.npr.org/510338/podcast.xml",
+      "enabled": true
     }
   }
 }

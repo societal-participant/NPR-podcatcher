@@ -46,18 +46,17 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
     "volume=-4dB,"
-    "highpass=f=240,"
-    "highpass=f=240,"
-    "bass=g=-10:f=220:width_type=o:width=0.8,"
-    "equalizer=f=300:width_type=o:width=1.2:g=-5,"
-    "equalizer=f=2200:width_type=o:width=1.2:g=7,"
-    "equalizer=f=1300:width_type=o:width=1.2:g=4,"
-    "equalizer=f=3500:width_type=o:width=1.0:g=1,"
-    "treble=g=6:f=5500:width_type=o:width=0.7,"
+    "highpass=f=200,"
+    "bass=g=-8:f=220:width_type=o:width=0.8,"
+    "equalizer=f=430:width_type=o:width=1.6:g=-6,"
+    "equalizer=f=1300:width_type=o:width=1.2:g=1,"
+    "equalizer=f=2200:width_type=o:width=1.2:g=3,"
+    "equalizer=f=3500:width_type=o:width=1.0:g=0,"
+    "equalizer=f=4500:width_type=o:width=1.5:g=2,"
+    "treble=g=5:f=6000:width_type=o:width=0.7,"
     "acompressor=threshold=0.12:ratio=3:attack=15:release=250:makeup=2,"
     "alimiter=limit=0.95"
 )
-
 current_episode_id = None
 
 position_thread_running = False
