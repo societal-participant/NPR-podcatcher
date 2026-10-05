@@ -11,6 +11,8 @@ The following hardware is required to build the podcatcher.
  - [8 Ohm 2 Watt Speaker w/ Wires - 36mm](https://www.adafruit.com/product/6486)
  - [USB Audio Adapter](https://www.adafruit.com/product/1475) (needs to work with Raspberry Pi)
 
+You will also need two different colors of 22g wire
+
 ### Software Requirements
 The NPR podcatcher runs on Raspberry Pi Bookworm Lite. There is no graphical desktop UI.
 
@@ -37,8 +39,8 @@ sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparse
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExMTIwMjU5NzQsMzMyODkxMjMzLDc2ND
-M4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4
-OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC
-0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbODEyMTk1MzgsMzMyODkxMjMzLDc2NDM4ND
+I4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4OTAs
+LTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC0xNz
+c5MzQ5Njk5LC02MzQxMTMyNV19
 -->
