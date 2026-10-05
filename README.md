@@ -50,10 +50,13 @@ After assembling the Pi, do the following:
  4. Cut the audio cable so that the two inner wires are exposed. You should see a red wire and a black wire.
  5. Solder the black wire to the A- pin on the amp.
  6. Solder the red wire to the A+ pin on the amp.
- 7. Connect the speaker to the amp by inserting the wires in the terminal on the amp board
+ 7. Connect the speaker to the amp by inserting the wires in the terminal on the amp board.
 
-### Connecting Everything
+### Connecting Everything Else
 
+After assembling the amp, do the following:
+
+ 1. Insert the audio cable into the audio jack on the amp. Be careful not to insert it into the MIC
 
 ## Installing the Podcatcher Files
 
@@ -62,7 +65,7 @@ After assembling the Pi, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTg0NTg5MTU4MSwzMzI4OTEyMzMsNzY0Mz
+eyJoaXN0b3J5IjpbMTI5NTYxOTk1NCwzMzI4OTEyMzMsNzY0Mz
 g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
 MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
 E3NzkzNDk2OTksLTYzNDExMzI1XX0=
