@@ -34,11 +34,18 @@ sudo apt install -y mpv ffmpeg python3-pygame python3-requests python3-feedparse
 ## Assembling the Podcatcher
 Assembling the podcatcher requires you to complete the following steps:
 
+### Assembling the Pi
+
  1. Solder header pins to the Raspberry Pi Zero, if they are not already soldered.
  2. Solder one wire to Pin 4 on the Pi. (power)
  3. Solder the other wire to Pin 6 on the Pi. (ground)
  4. Attach the screen to the Pi.
- 5. 
+
+### Assembling the Amp
+After assembling the Pi, do the following:
+
+### Connecting Everything
+
 
 ## Installing the Podcatcher Files
 
@@ -47,7 +54,7 @@ Assembling the podcatcher requires you to complete the following steps:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTg5NTg0Nzg5NiwzMzI4OTEyMzMsNzY0Mz
+eyJoaXN0b3J5IjpbMTM5MjIwOTA3OCwzMzI4OTEyMzMsNzY0Mz
 g0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5
 MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLT
 E3NzkzNDk2OTksLTYzNDExMzI1XX0=
