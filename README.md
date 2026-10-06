@@ -68,9 +68,11 @@ After assembling the amp, do the following:
 ## Installing the Podcatcher Files
 ### Getting the Project
 
-To download the project, 
-
+To download the project, you have to SSH into the Pi.
 ```
+ssh pi@npr-pi.local
+```
+Once the operating system loads, you will be on the login screen. Once 
 cd ~
 git clone https://github.com/societal-participant/NPR-podcatcher.git npr
 cd npr
@@ -105,7 +107,7 @@ The first "Check for New Episodes" creates the episode database (`npr.db`) autom
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTU0ODg2MDIyNCwxMTI2NTE4MjA5LC0xMT
+eyJoaXN0b3J5IjpbMTkxOTM5MDQ4MywxMTI2NTE4MjA5LC0xMT
 UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
 ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
 0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
