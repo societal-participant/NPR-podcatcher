@@ -66,13 +66,46 @@ After assembling the amp, do the following:
  2. Plug the USB adapter into the USB micro-USB port on the Raspberry Pi Zero. If necessary, use a USB to micro-USB adapter to plug in to the Pi.
 
 ## Installing the Podcatcher Files
+### Getting the Project
+
+To download the project, 
+
+```
+cd ~
+git clone https://github.com/societal-participant/NPR-podcatcher.git npr
+cd npr
+```
+
+Make sure the folder is named `npr` (the `npr` at the end of the clone command does that). The project's files are:
+
+File
+
+Purpose
+
+`gui.py`
+
+The touchscreen app — this is what runs
+
+`player.py`
+
+Playback engine (controls mpv)
+
+`downloader.py`
+
+Checks feeds and downloads new episodes
+
+`config.json`
+
+Your shows and settings
+
+The first "Check for New Episodes" creates the episode database (`npr.db`) automatically. Downloaded episodes are stored in the folder set by `audio_directory` in `config.json` (`/home/pi/npr/audio` by default).
 
 ## Configuring the Podcatcher
 
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTI1MzE5NzI1NSwxMTI2NTE4MjA5LC0xMT
+eyJoaXN0b3J5IjpbLTU0ODg2MDIyNCwxMTI2NTE4MjA5LC0xMT
 UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
 ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
 0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
