@@ -146,6 +146,18 @@ def delete_episodes(ep_ids):
 # Playback state (reads player.py's live state, doesn't duplicate it)
 # ---------------------------------------------------------------------
 
+def format_clock(seconds):
+    """63.4 -> '1:03', 3725 -> '1:02:05'. None -> '--:--'."""
+    if seconds is None:
+        return "--:--"
+    seconds = max(0, int(seconds))
+    h, rem = divmod(seconds, 3600)
+    m, s = divmod(rem, 60)
+    if h:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
+
+
 def get_playback_status():
     """Returns (title_or_None, status_text)."""
     ep_id = player.current_episode_id
@@ -346,6 +358,11 @@ class App:
         self.toast_text = ""
         self.toast_until = 0
 
+        # Latest playback info for the Now Playing screen, refreshed by a
+        # background thread so a slow mpv reply can never freeze the UI.
+        self.np_info = {"pos": None, "dur": None, "paused": False}
+        threading.Thread(target=self._np_poll_loop, daemon=True).start()
+
         self.check_thread = None
         self.check_log = collections.deque(maxlen=6)
 
@@ -359,6 +376,25 @@ class App:
         self.mpv_ready = False
         self.mpv_failed = False
         self.mpv_thread = None
+
+    def _np_poll_loop(self):
+        while True:
+            try:
+                if (self.state == "NOW_PLAYING"
+                        and player.current_episode_id is not None):
+                    pos = player.get_position()
+                    dur = player.get_duration()
+                    reply = player.send_mpv(["get_property", "pause"])
+                    self.np_info = {
+                        "pos": pos,
+                        "dur": dur,
+                        "paused": bool(reply and reply.get("data")),
+                    }
+                else:
+                    self.np_info = {"pos": None, "dur": None, "paused": False}
+            except Exception:
+                pass
+            time.sleep(0.5)
 
     def _start_mpv_background(self):
         """Start mpv without blocking the UI thread."""
@@ -578,9 +614,17 @@ class App:
         self.canvas.fill(BG)
         self.buttons = []
 
-        title, status = get_playback_status()
+        ep_id = player.current_episode_id
+        title = get_episode_title(ep_id) if ep_id is not None else None
+        info = self.np_info
+        if ep_id is None:
+            status = "Nothing playing"
+        else:
+            status = "Paused" if info["paused"] else "Playing"
+            if player.play_queue:
+                status += f"  ({len(player.play_queue)} queued)"
 
-        title_rect = pygame.Rect(30, 60, LOGICAL_WIDTH - 60, 160)
+        title_rect = pygame.Rect(30, 30, LOGICAL_WIDTH - 60, 150)
         if title:
             draw_wrapped_text(self.canvas, title, self.font_large, TEXT, title_rect)
         else:
@@ -589,8 +633,15 @@ class App:
 
         status_surf = self.font_medium.render(status, True, TEXT_DIM)
         self.canvas.blit(
-            status_surf, status_surf.get_rect(center=(LOGICAL_WIDTH // 2, 240))
+            status_surf, status_surf.get_rect(center=(LOGICAL_WIDTH // 2, 200))
         )
+
+        if ep_id is not None:
+            clock = f"{format_clock(info['pos'])} / {format_clock(info['dur'])}"
+            clock_surf = self.font_large.render(clock, True, TEXT)
+            self.canvas.blit(
+                clock_surf, clock_surf.get_rect(center=(LOGICAL_WIDTH // 2, 243))
+            )
 
         play_btn = Button(
             (LOGICAL_WIDTH // 2 - 90, 280, 180, 70),
