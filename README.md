@@ -90,12 +90,15 @@ The first "Check for New Episodes" creates the episode database (`npr.db`) autom
 
 Downloaded episodes are stored in the folder set in `audio_directory` in `config.json` (`/home/pi/npr/audio` by default).
 
+### Testing the Audio
+
+
 ## Configuring the Podcatcher
 
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM2ODMxMTA3MSwxMTI2NTE4MjA5LC0xMT
+eyJoaXN0b3J5IjpbMTYyMDA3OTQwMSwxMTI2NTE4MjA5LC0xMT
 UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
 ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
 0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
