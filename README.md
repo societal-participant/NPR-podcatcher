@@ -81,28 +81,23 @@ cd npr
 
 Make sure the folder is named `npr` (the `npr` at the end of the clone command does that). The project's files are:
 
- - `gui.py`The touchscreen app — this is what runs
+ - `gui.py` The touchscreen app — this is what runs
+ - `player.py` Playback engine
+ - `downloader.py` Checks feeds and downloads new episodes
+ - `config.json` Your shows and settings
 
- - `player.py` Playback engine (controls mpv)
+The first "Check for New Episodes" creates the episode database (`npr.db`) automatically.
 
-`downloader.py`
-
-Checks feeds and downloads new episodes
-
-`config.json`
-
-Your shows and settings
-
-The first "Check for New Episodes" creates the episode database (`npr.db`) automatically. Downloaded episodes are stored in the folder set by `audio_directory` in `config.json` (`/home/pi/npr/audio` by default).
+Downloaded episodes are stored in the folder set in `audio_directory` in `config.json` (`/home/pi/npr/audio` by default).
 
 ## Configuring the Podcatcher
 
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNjQyNTM0Njc5LDExMjY1MTgyMDksLTExNT
-MwNjk4MzAsLTE1NDM1NTkxNjIsMzMyODkxMjMzLDc2NDM4NDI4
-MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4OTAsLT
-ExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC0xNzc5
-MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbLTM2ODMxMTA3MSwxMTI2NTE4MjA5LC0xMT
+UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
+ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
+0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
+OTM0OTY5OSwtNjM0MTEzMjVdfQ==
 -->
