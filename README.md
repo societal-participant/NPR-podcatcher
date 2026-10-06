@@ -72,7 +72,8 @@ To download the project, you have to SSH into the Pi.
 ```
 ssh pi@npr-pi.local
 ```
-Once the operating system loads, you will be on the login screen. Once 
+Once the operating system loads, you will be on the login screen. Once an internet connection is established, the IP address will be visible at the top of the screen.
+```
 cd ~
 git clone https://github.com/societal-participant/NPR-podcatcher.git npr
 cd npr
@@ -80,17 +81,9 @@ cd npr
 
 Make sure the folder is named `npr` (the `npr` at the end of the clone command does that). The project's files are:
 
-File
+ - `gui.py`The touchscreen app — this is what runs
 
-Purpose
-
-`gui.py`
-
-The touchscreen app — this is what runs
-
-`player.py`
-
-Playback engine (controls mpv)
+ - `player.py` Playback engine (controls mpv)
 
 `downloader.py`
 
@@ -107,9 +100,9 @@ The first "Check for New Episodes" creates the episode database (`npr.db`) autom
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTkxOTM5MDQ4MywxMTI2NTE4MjA5LC0xMT
-UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
-ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
-0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
-OTM0OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbNjQyNTM0Njc5LDExMjY1MTgyMDksLTExNT
+MwNjk4MzAsLTE1NDM1NTkxNjIsMzMyODkxMjMzLDc2NDM4NDI4
+MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2MTI4OTAsLT
+ExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3NDgxLC0xNzc5
+MzQ5Njk5LC02MzQxMTMyNV19
 -->
