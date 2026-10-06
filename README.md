@@ -73,11 +73,14 @@ To download the project, you have to SSH into the Pi.
 ssh pi@npr-pi.local
 ```
 Once the operating system loads, you will be on the login screen. Once an internet connection is established, the IP address will be visible at the top of the screen.
+
+Run the following command to clone the project files to your:
 ```
 cd ~
 git clone https://github.com/societal-participant/NPR-podcatcher.git npr
 cd npr
 ```
+This creates a specific directory in which to store the app files.
 
 Make sure the folder is named `npr` (the `npr` at the end of the clone command does that). The project's files are:
 
@@ -98,9 +101,9 @@ Downloaded episodes are stored in the folder set in `audio_directory` in `config
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYyMDA3OTQwMSwxMTI2NTE4MjA5LC0xMT
-UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
-ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
-0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
-OTM0OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbLTQ1MzY1NjI4LDE2MjAwNzk0MDEsMTEyNj
+UxODIwOSwtMTE1MzA2OTgzMCwtMTU0MzU1OTE2MiwzMzI4OTEy
+MzMsNzY0Mzg0MjgyLC0xMTQ1OTE4NjYwLDE0MTcyNzA2MDEsLT
+I4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMDE1NDA3NDEzLC0xOTAy
+NDc0ODEsLTE3NzkzNDk2OTksLTYzNDExMzI1XX0=
 -->
