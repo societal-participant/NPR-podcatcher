@@ -15,7 +15,7 @@ The following hardware is required to build the podcatcher.
 
 Additionally, you will need two different colors of 22g wire to solder the amp to the Pi. Two pieces of wire are needed and should measure at least 3 inches in length.
 
-You will also need a basic audio cable with a male jack that will be connected to the USB adapter and be soldered to the amp. The audio cable should measure about 5-6 inches in length.
+You will also need a basic 3.5mm audio cable with a male jack that will be connected to the USB adapter and be soldered to the amp. The audio cable should measure about 5-6 inches in length.
 
 To hold everything together for convenience, you should also 3D print the following Pi Zero stand. It's a simple basic stand designed for the Pi Zero that works really well with this project.
 
@@ -72,9 +72,9 @@ After assembling the amp, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTEyNjUxODIwOSwtMTE1MzA2OTgzMCwtMT
-U0MzU1OTE2MiwzMzI4OTEyMzMsNzY0Mzg0MjgyLC0xMTQ1OTE4
-NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5MCwtMTE2MzAxNjc3OC
-wyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYz
-NDExMzI1XX0=
+eyJoaXN0b3J5IjpbMTI1MzE5NzI1NSwxMTI2NTE4MjA5LC0xMT
+UzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQy
+ODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC
+0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3
+OTM0OTY5OSwtNjM0MTEzMjVdfQ==
 -->
