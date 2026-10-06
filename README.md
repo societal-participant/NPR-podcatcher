@@ -50,7 +50,7 @@ Assembling the podcatcher requires you to complete the following steps:
 ### Assembling the Amp
 After assembling the Pi, do the following:
 
- 1. Solder the included header pins and terminal to the amp board if they are not already soldered.
+ 1. Solder the included header pins and terminal to the PAM8302 amp board if they are not already soldered.
  2. Solder the **Ground** wire from the Pi (pin 6) to the **Ground** pin on the amp.
  3. Solder the **Power** wire (pin 4) to the **Vin** pin on the amp.
  4. Cut the audio cable so that the two inner wires are exposed. You should see a red wire and a black wire.
@@ -72,8 +72,9 @@ After assembling the amp, do the following:
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExNTMwNjk4MzAsLTE1NDM1NTkxNjIsMz
-MyODkxMjMzLDc2NDM4NDI4MiwtMTE0NTkxODY2MCwxNDE3Mjcw
-NjAxLC0yODM2MTI4OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMy
-wtMTkwMjQ3NDgxLC0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbMTEyNjUxODIwOSwtMTE1MzA2OTgzMCwtMT
+U0MzU1OTE2MiwzMzI4OTEyMzMsNzY0Mzg0MjgyLC0xMTQ1OTE4
+NjYwLDE0MTcyNzA2MDEsLTI4MzYxMjg5MCwtMTE2MzAxNjc3OC
+wyMDE1NDA3NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYz
+NDExMzI1XX0=
 -->
