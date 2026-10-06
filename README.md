@@ -66,7 +66,7 @@ After assembling the amp, do the following:
  2. Plug the USB adapter into the USB micro-USB port on the Raspberry Pi Zero. If necessary, use a USB to micro-USB adapter to plug in to the Pi.
 
 ## Installing the Podcatcher Files
-The podcaster is installed by downloading/
+The podcaster is installed by downloading/cloning the project files from github to your Pi. 
 ### Getting the Project
 
 To download the project, you have to SSH into the Pi.
@@ -102,7 +102,7 @@ Downloaded episodes are stored in the folder set in `audio_directory` in `config
 ## Using the Podcatcher
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMTQ1MTAyNDEsMTYyMDA3OTQwMSwxMT
+eyJoaXN0b3J5IjpbLTE3Mzk3NjQwNjQsMTYyMDA3OTQwMSwxMT
 I2NTE4MjA5LC0xMTUzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5
 MTIzMyw3NjQzODQyODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMS
 wtMjgzNjEyODkwLC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5
