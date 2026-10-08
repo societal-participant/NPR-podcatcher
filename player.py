@@ -13,6 +13,19 @@ DB = "/home/pi/npr/npr.db"
 
 SOCKET = "/tmp/npr-mpv.sock"
 
+# mpv's own error output goes to this file (not a pipe: nothing reads a
+# pipe after startup, and mpv would freeze once it filled up).
+MPV_LOG = "/tmp/npr-mpv.log"
+
+
+def read_mpv_log(max_chars=2000):
+    try:
+        with open(MPV_LOG) as f:
+            return f.read()[-max_chars:].strip()
+    except OSError:
+        return ""
+
+
 BASE_DIR = os.path.expanduser("~/npr")
 
 CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
@@ -24,28 +37,28 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 # in the 200-500Hz "boxy/muddy" zone specifically hurts deep voices, since
 # that's where their fundamental and low harmonics live. This version:
 #
-#   highpass    - cuts rumble/handling noise below what the driver can
-#                 reproduce cleanly.
-#   bass        - low-shelf cut below ~200Hz for overall bass level. This
-#                 is a broad tone control (mirrors "treble" below) - use
-#                 it for "too much/little bass overall," separate from
-#                 the narrower boxy-resonance fix just below.
-#   equalizer 1 - cuts the 350Hz boxy/muddy zone specifically.
-#   equalizer 2 - small boost around 1.8kHz for consonant definition and
-#                 speech intelligibility, without touching the harsh zone.
-#   equalizer 3 - pulls down the main harsh resonant peak around 3kHz.
-#   treble      - a gentle high-shelf boost above ~7kHz for "air."
+#   volume      - -4dB of headroom so the boosts below can't clip.
+#   highpass    - cuts rumble below what the speaker can reproduce
+#                 cleanly (200Hz).
+#   bass        - broad low-shelf cut for overall bass level.
+#   equalizer 1 - wide cut around 430Hz for muddy/boxy low-mids.
+#   equalizer 2 - small boost around 1.3kHz for body.
+#   equalizer 3 - boost around 2.2kHz for consonant/vowel clarity.
+#   equalizer 4 - flat at 3.5kHz (a spot to trim if highs sound harsh).
+#   equalizer 5 - wide presence lift around 4.5kHz.
+#   treble      - gentle high-shelf boost above 6kHz for "air."
 #   acompressor - evens out loudness across quiet/loud speech.
 #   alimiter    - final safety ceiling so nothing clips.
 #
-# Retuned by ear for the PAM8302 + bare speaker: heavy low-end cut for
-# boomy low voices, then boosts at 1.3kHz and 2.2kHz for body and
-# consonant clarity, a small lift at 3.5kHz, and a treble shelf from 5kHz.
+# Retuned by ear for the PAM8302 + bare speaker: a highpass and bass cut to
+# keep the speaker from buzzing on low voices, one broad cut around 430Hz
+# for muddy/boxy "mmm" and "ooo" sounds, modest clarity boosts at 1.3kHz
+# and 2.2kHz, and a presence lift at 4.5kHz plus a treble shelf from 6kHz.
 #
 # Override this per your actual hardware by setting "audio_filter" under
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
-    "volume=-4dB,"
+    "volume=0dB,"
     "highpass=f=200,"
     "bass=g=-8:f=220:width_type=o:width=0.8,"
     "equalizer=f=430:width_type=o:width=1.6:g=-6,"
@@ -57,7 +70,12 @@ DEFAULT_AUDIO_FILTER = (
     "acompressor=threshold=0.12:ratio=3:attack=15:release=250:makeup=2,"
     "alimiter=limit=0.95"
 )
+
 current_episode_id = None
+
+# Episode whose saved position is still being restored; the position
+# monitor must not overwrite its saved place while this is set.
+resume_pending_ep = None
 
 position_thread_running = False
 
@@ -91,49 +109,51 @@ def load_audio_filter():
     return DEFAULT_AUDIO_FILTER
 
 def send_mpv(command):
+    """Send one command to mpv and return its reply, or None.
+
+    mpv also pushes unsolicited event lines down the same socket, so read
+    line by line and pick out the reply (the line with an "error" key)
+    instead of assuming the first thing received is the answer.
+    """
 
     if not os.path.exists(SOCKET):
-
         return None
 
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 
     try:
-
         sock.connect(SOCKET)
+        sock.settimeout(3)
 
-        message = {
+        message = {"command": command}
+        sock.sendall((json.dumps(message) + "\n").encode())
 
-            "command": command
+        buf = b""
 
-        }
+        while True:
+            try:
+                chunk = sock.recv(4096)
+            except socket.timeout:
+                return None
 
-        sock.sendall(
+            if not chunk:
+                return None
 
-            (json.dumps(message) + "\n").encode()
+            buf += chunk
 
-        )
-
-        sock.settimeout(1)
-
-        try:
-
-            response = sock.recv(4096)
-
-            if response:
-
-                return json.loads(response.decode())
-
-        except socket.timeout:
-
-            return None
+            while b"\n" in buf:
+                line, buf = buf.split(b"\n", 1)
+                try:
+                    reply = json.loads(line.decode())
+                except ValueError:
+                    continue
+                if isinstance(reply, dict) and "error" in reply:
+                    return reply
 
     except Exception:
-
         return None
 
     finally:
-
         sock.close()
 
 def start_mpv():
@@ -210,7 +230,7 @@ def start_mpv():
 
         stdout=subprocess.DEVNULL,
 
-        stderr=subprocess.PIPE,
+        stderr=open(MPV_LOG, "w"),
 
         text=True,
 
@@ -224,7 +244,7 @@ def start_mpv():
 
         if process.poll() is not None:
 
-            error = process.stderr.read().strip()
+            error = read_mpv_log()
 
             print()
 
@@ -272,7 +292,7 @@ def start_mpv():
 
             process.wait(timeout=3)
 
-            error = process.stderr.read().strip()
+            error = read_mpv_log()
 
             if error:
 
@@ -434,7 +454,7 @@ def position_monitor():
                 if duration and position >= duration - 15:
                     save_position(ep_id, 0, played=True)
                     advance_queue()
-                else:
+                elif resume_pending_ep != ep_id:
                     save_position(ep_id, position)
 
             elif last_dur and last_pos >= last_dur - 30:
@@ -558,109 +578,124 @@ def list_episodes():
 
     print()
 
+def _resume_when_ready(ep_id, position):
+    """Wait for mpv to finish loading the file, then jump to `position`.
+
+    A fixed short sleep isn't enough on a Pi Zero W: mpv often hasn't
+    opened the file yet, the seek silently fails, and playback starts
+    from the beginning.
+    """
+
+    global resume_pending_ep
+
+    try:
+        deadline = time.time() + 30
+        loaded = False
+
+        while time.time() < deadline:
+            if current_episode_id != ep_id:
+                return  # the user moved on to something else
+
+            reply = send_mpv(["get_property", "duration"])
+
+            if reply and reply.get("error") == "success" and reply.get("data"):
+                loaded = True
+                break
+
+            time.sleep(0.3)
+
+        if not loaded:
+            print("Resume: file never finished loading; starting from the beginning.")
+            return
+
+        for _ in range(3):
+            if current_episode_id != ep_id:
+                return
+
+            result = send_mpv(["seek", position, "absolute"])
+
+            if result and result.get("error") == "success":
+                print(f"Resumed at {int(position // 60)}:{int(position % 60):02d}")
+                return
+
+            time.sleep(0.5)
+
+        print("Resume: could not seek to the saved position.")
+
+    finally:
+        if resume_pending_ep == ep_id:
+            resume_pending_ep = None
+
+
 def play(ep_id):
 
     global current_episode_id
+    global resume_pending_ep
 
     episode = get_episode(ep_id)
 
     if not episode:
-
         print("Episode not found.")
-
         return
 
     (
-
         _,
-
         show,
-
         title,
-
         played,
-
         position,
-
         filename,
-
     ) = episode
 
     if not os.path.exists(filename):
-
         print("Audio file not found:")
-
         print(filename)
-
         return
 
-    current_episode_id = ep_id
+    # Remember exactly where the episode we're leaving stopped, instead of
+    # relying on the monitor's last 5-second save.
+    previous = current_episode_id
+    if previous is not None and previous != ep_id and resume_pending_ep != previous:
+        previous_pos = get_position()
+        if previous_pos is not None:
+            save_position(previous, previous_pos)
+
+    resume = bool(position and not played)
 
     print()
-
     print("Playing:")
-
     print(show)
-
     print(title)
 
-    if position and not played:
-
+    if resume:
         minutes = int(position // 60)
-
         seconds = int(position % 60)
-
-        print(
-
-            f"Resuming at {minutes}:{seconds:02d}"
-
-        )
+        print(f"Resuming at {minutes}:{seconds:02d}")
 
     print()
 
+    resume_pending_ep = ep_id if resume else None
+    current_episode_id = ep_id
+
     result = send_mpv(
-
         [
-
             "loadfile",
-
             filename,
-
             "replace",
-
         ]
-
     )
 
     print("mpv:", result)
 
-    if (
+    if resume and result and result.get("error") == "success":
+        threading.Thread(
+            target=_resume_when_ready,
+            args=(ep_id, position),
+            daemon=True,
+        ).start()
+    else:
+        resume_pending_ep = None
 
-        position
-
-        and not played
-
-        and result
-
-        and result.get("error") == "success"
-
-    ):
-
-        time.sleep(0.5)
-
-        send_mpv(
-
-            [
-
-                "set_property",
-
-                "time-pos",
-
-                position,
-
-            ]
-
-        )
 
 def parse_episode_ids(args):
     """Parse a play-command argument string into a list of episode ids.

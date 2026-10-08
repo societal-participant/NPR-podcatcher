@@ -32,6 +32,7 @@ os.environ.setdefault("SDL_FBDEV", "/dev/fb0")
 
 import sys
 import sqlite3
+import subprocess
 import threading
 import time
 import contextlib
@@ -69,6 +70,27 @@ SPLASH_SECONDS = 5
 
 DB = player.DB
 
+# Volume (0-100) is remembered between boots in this small file.
+VOLUME_FILE = os.path.join(os.path.dirname(DB), "volume.txt")
+VOLUME_STEP = 10
+
+
+def load_volume():
+    try:
+        with open(VOLUME_FILE) as f:
+            return max(0, min(100, int(f.read().strip())))
+    except (OSError, ValueError):
+        # 80% is the normal listening level; 90-100% is headroom above it.
+        return 80
+
+
+def save_volume(value):
+    try:
+        with open(VOLUME_FILE, "w") as f:
+            f.write(str(int(value)))
+    except OSError as e:
+        print(f"[gui] could not save volume: {e}")
+
 
 # ---------------------------------------------------------------------
 # Data access
@@ -92,7 +114,7 @@ def get_episodes(show_name):
     conn = sqlite3.connect(DB)
     rows = conn.execute(
         """
-        SELECT id, title, played, position
+        SELECT id, title, played, position, duration
         FROM episodes
         WHERE show_name = ? AND downloaded = 1
         ORDER BY id DESC
@@ -103,14 +125,19 @@ def get_episodes(show_name):
     return rows
 
 
-def episode_status_text(played, position):
+def episode_status_text(played, position, duration=None):
+    """Status line for an episode row, including its length when known.
+
+    NEW - 14:32   |   2:05 / 14:32   |   PLAYED - 14:32
+    """
+    length = format_clock(duration) if duration else None
     if played:
-        return "PLAYED"
+        return f"PLAYED - {length}" if length else "PLAYED"
     if position and position > 0:
-        minutes = int(position // 60)
-        seconds = int(position % 60)
-        return f"{minutes}:{seconds:02d}"
-    return "NEW"
+        if length:
+            return f"{format_clock(position)} / {length}"
+        return format_clock(position)
+    return f"NEW - {length}" if length else "NEW"
 
 
 def get_episode_title(ep_id):
@@ -353,6 +380,7 @@ class App:
         self.scroll_offset = {"SHOWS": 0, "EPISODES": 0}
 
         self.confirm_delete = False
+        self.confirm_shutdown = False
 
         # Short-lived banner shown after Cleanup Played: (text, expiry time)
         self.toast_text = ""
@@ -361,6 +389,7 @@ class App:
         # Latest playback info for the Now Playing screen, refreshed by a
         # background thread so a slow mpv reply can never freeze the UI.
         self.np_info = {"pos": None, "dur": None, "paused": False}
+        self.volume = load_volume()
         threading.Thread(target=self._np_poll_loop, daemon=True).start()
 
         self.check_thread = None
@@ -406,6 +435,7 @@ class App:
                 ok = False
             if ok:
                 player.start_position_monitor()
+                player.send_mpv(["set_property", "volume", self.volume])
                 self.mpv_ready = True
             else:
                 self.mpv_failed = True
@@ -433,6 +463,101 @@ class App:
         pygame.display.flip()
 
     # -- screen switch helpers --
+
+    def change_volume(self, delta):
+        """Raise/lower mpv's volume by delta percent (clamped to 0-100)."""
+        self.volume = max(0, min(100, self.volume + delta))
+        value = self.volume
+
+        def apply():
+            player.send_mpv(["set_property", "volume", value])
+            save_volume(value)
+
+        # Off the UI thread, so a slow mpv reply can't freeze the screen.
+        threading.Thread(target=apply, daemon=True).start()
+
+    def request_shutdown(self):
+        self.confirm_shutdown = True
+
+    def cancel_shutdown(self):
+        self.confirm_shutdown = False
+
+    def do_shutdown(self):
+        """Save the listening position, show a message, and power off."""
+        self.confirm_shutdown = False
+        try:
+            ep_id = player.current_episode_id
+            if ep_id is not None:
+                pos = player.get_position()
+                if pos is not None:
+                    player.save_position(ep_id, pos)
+        except Exception as e:
+            print(f"[gui] could not save position before shutdown: {e}")
+
+        previous_state = self.state
+        self.state = "SHUTDOWN"
+        self.draw()  # make sure the message is on screen before we halt
+        print("[gui] shutting down")
+
+        try:
+            result = subprocess.run(
+                ["sudo", "-n", "shutdown", "-h", "now"],
+                capture_output=True, text=True, timeout=20,
+            )
+            failed = result.returncode != 0
+            detail = (result.stderr or "").strip()
+        except Exception as e:
+            failed, detail = True, str(e)
+
+        if failed:
+            print(f"[gui] shutdown failed: {detail}")
+            self.state = previous_state
+            self.toast_text = "Shutdown failed - see log"
+            self.toast_until = time.time() + 4
+
+    def _draw_shutdown_x(self):
+        btn = Button((LOGICAL_WIDTH - 58, 6, 52, 52), "X", self.request_shutdown)
+        btn.draw(self.canvas, self.font_medium)
+        self.buttons.append(btn)
+
+    def _draw_confirm_shutdown(self):
+        overlay = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        overlay.set_alpha(225)
+        overlay.fill((10, 10, 10))
+        self.canvas.blit(overlay, (0, 0))
+
+        msg = self.font_large.render(
+            "Are you sure you want to shut down?", True, TEXT
+        )
+        self.canvas.blit(
+            msg, msg.get_rect(center=(LOGICAL_WIDTH // 2, LOGICAL_HEIGHT // 2 - 50))
+        )
+
+        # Only these two buttons respond while the prompt is up.
+        self.buttons = []
+        yes_btn = Button(
+            (LOGICAL_WIDTH // 2 - 210, LOGICAL_HEIGHT // 2, 200, 60),
+            "Yes", self.do_shutdown, danger=True,
+        )
+        no_btn = Button(
+            (LOGICAL_WIDTH // 2 + 10, LOGICAL_HEIGHT // 2, 200, 60),
+            "No", self.cancel_shutdown,
+        )
+        yes_btn.draw(self.canvas, self.font_medium)
+        no_btn.draw(self.canvas, self.font_medium)
+        self.buttons.append(yes_btn)
+        self.buttons.append(no_btn)
+
+    def draw_shutting_down(self):
+        self.canvas.fill(BG)
+        self.buttons = []
+        line1 = self.font_large.render("Shutting down...", True, TEXT)
+        line2 = self.font_medium.render(
+            "Unplug power after the green light stops blinking.", True, TEXT_DIM
+        )
+        cx = LOGICAL_WIDTH // 2
+        self.canvas.blit(line1, line1.get_rect(center=(cx, LOGICAL_HEIGHT // 2 - 20)))
+        self.canvas.blit(line2, line2.get_rect(center=(cx, LOGICAL_HEIGHT // 2 + 25)))
 
     def go_to(self, state):
         self.state = state
@@ -624,7 +749,7 @@ class App:
             if player.play_queue:
                 status += f"  ({len(player.play_queue)} queued)"
 
-        title_rect = pygame.Rect(30, 30, LOGICAL_WIDTH - 60, 150)
+        title_rect = pygame.Rect(30, 58, LOGICAL_WIDTH - 60, 130)
         if title:
             draw_wrapped_text(self.canvas, title, self.font_large, TEXT, title_rect)
         else:
@@ -644,7 +769,7 @@ class App:
             )
 
         play_btn = Button(
-            (LOGICAL_WIDTH // 2 - 90, 280, 180, 70),
+            (200, 390, 240, 70),
             "Play / Pause",
             self.toggle_play_pause,
             enabled=player.current_episode_id is not None,
@@ -654,27 +779,42 @@ class App:
 
         has_ep = player.current_episode_id is not None
         back_btn = Button(
-            (30, 280, 170, 70), "- 30s", lambda: self.seek(-30), enabled=has_ep
+            (30, 280, 150, 70), "- 30s", lambda: self.seek(-30), enabled=has_ep
         )
         back_btn.draw(self.canvas, self.font_medium)
         self.buttons.append(back_btn)
 
         fwd_btn = Button(
-            (LOGICAL_WIDTH - 200, 280, 170, 70), "+ 30s",
+            (LOGICAL_WIDTH - 180, 280, 150, 70), "+ 30s",
             lambda: self.seek(30), enabled=has_ep,
         )
         fwd_btn.draw(self.canvas, self.font_medium)
         self.buttons.append(fwd_btn)
 
-        shows_btn = Button((30, 390, 220, 70), "Shows", self.go_to_shows)
+        shows_btn = Button((30, 390, 150, 70), "Shows", self.go_to_shows)
         shows_btn.draw(self.canvas, self.font_medium)
         self.buttons.append(shows_btn)
 
         menu_btn = Button(
-            (LOGICAL_WIDTH - 250, 390, 220, 70), "Main Menu", self.go_main_menu
+            (LOGICAL_WIDTH - 180, 390, 150, 70), "Main Menu", self.go_main_menu
         )
         menu_btn.draw(self.canvas, self.font_medium)
         self.buttons.append(menu_btn)
+
+        # Volume control in the middle of the top button row: [-]  Vol 80%  [+]
+        vol_down = Button(
+            (200, 280, 70, 70), "-", lambda: self.change_volume(-VOLUME_STEP),
+            enabled=self.volume > 0,
+        )
+        vol_up = Button(
+            (370, 280, 70, 70), "+", lambda: self.change_volume(VOLUME_STEP),
+            enabled=self.volume < 100,
+        )
+        for b in (vol_down, vol_up):
+            b.draw(self.canvas, self.font_medium)
+            self.buttons.append(b)
+        vol_label = self.font_medium.render(f"Vol {self.volume}%", True, TEXT)
+        self.canvas.blit(vol_label, vol_label.get_rect(center=(320, 315)))
 
     def draw_list_screen(self, items, title, row_labels, on_row_tap,
                           extra_buttons, scroll_key, empty_message):
@@ -805,8 +945,8 @@ class App:
         episodes = get_episodes(self.selected_show)
 
         def labels(ep):
-            ep_id, title, played, position = ep
-            status = episode_status_text(played, position)
+            ep_id, title, played, position, duration = ep
+            status = episode_status_text(played, position, duration)
             return title, status
 
         play_btn = Button(
@@ -843,8 +983,6 @@ class App:
 
         if self.confirm_delete:
             self._draw_confirm_delete()
-
-        self._draw_toast()
 
     def _draw_toast(self):
         if not self.toast_text or time.time() > self.toast_until:
@@ -942,10 +1080,30 @@ class App:
             self.draw_episodes()
         elif self.state == "CHECKING":
             self.draw_checking()
+        elif self.state == "SHUTDOWN":
+            self.draw_shutting_down()
 
+        # Small X in the top-right corner of the main menu only; hidden
+        # while a prompt is open.
+        if (self.state == "MAIN_MENU"
+                and not self.confirm_delete
+                and not self.confirm_shutdown):
+            self._draw_shutdown_x()
+
+        if self.confirm_shutdown:
+            self._draw_confirm_shutdown()
+
+        self._draw_toast()
         self.render()
 
     def handle_tap(self, lx, ly):
+        if self.confirm_shutdown:
+            for btn in self.buttons:
+                if btn.hit((lx, ly)):
+                    btn.action()
+                    return
+            return
+
         if self.confirm_delete:
             for btn in self.buttons:
                 if btn.hit((lx, ly)):
