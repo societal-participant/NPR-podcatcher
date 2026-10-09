@@ -37,6 +37,7 @@ import threading
 import time
 import contextlib
 import io
+import json
 
 import pygame
 
@@ -95,6 +96,33 @@ def save_volume(value):
 # ---------------------------------------------------------------------
 # Data access
 # ---------------------------------------------------------------------
+
+def _config_path():
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+
+
+def load_show_settings():
+    """[(show_id, friendly name, enabled), ...] in config.json order."""
+    with open(_config_path(), "r") as f:
+        config = json.load(f)
+    return [
+        (sid, show.get("name", sid), bool(show.get("enabled", False)))
+        for sid, show in config.get("shows", {}).items()
+    ]
+
+
+def set_show_enabled(show_id, enabled):
+    """Flip one show's enabled flag in config.json (atomic write)."""
+    path = _config_path()
+    with open(path, "r") as f:
+        config = json.load(f)
+    config["shows"][show_id]["enabled"] = bool(enabled)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(config, f, indent=2)
+        f.write("\n")
+    os.replace(tmp, path)
+
 
 def get_shows():
     conn = sqlite3.connect(DB)
@@ -377,7 +405,7 @@ class App:
 
         self.selected_show = None
         self.selected_ids = set()
-        self.scroll_offset = {"SHOWS": 0, "EPISODES": 0}
+        self.scroll_offset = {"SHOWS": 0, "EPISODES": 0, "SETTINGS": 0}
 
         self.confirm_delete = False
         self.confirm_shutdown = False
@@ -514,6 +542,54 @@ class App:
             self.state = previous_state
             self.toast_text = "Shutdown failed - see log"
             self.toast_until = time.time() + 4
+
+    def toggle_show_enabled(self, show_id):
+        for sid, _name, enabled in load_show_settings():
+            if sid == show_id:
+                try:
+                    set_show_enabled(show_id, not enabled)
+                except Exception as e:
+                    print(f"[gui] could not save config.json: {e}")
+                    self.toast_text = "Could not save settings"
+                    self.toast_until = time.time() + 3
+                return
+
+    def draw_settings(self):
+        try:
+            shows = load_show_settings()
+        except Exception as e:
+            print(f"[gui] could not read config.json: {e}")
+            shows = []
+        row_rects, _top, _off, _rh = self.draw_list_screen(
+            items=shows,
+            title="Settings",
+            row_labels=lambda item: (item[1], None),
+            on_row_tap=None,
+            extra_buttons=[],
+            scroll_key="SETTINGS",
+            empty_message="No shows configured.",
+            checked_fn=lambda item: item[2],
+        )
+        self._current_rows = shows
+        self._current_row_rects = row_rects
+        self._current_row_action = lambda item: self.toggle_show_enabled(item[0])
+
+    def _draw_gear(self):
+        rect = pygame.Rect(LOGICAL_WIDTH - 58 - 52 - 10, 6, 52, 52)
+        btn = Button(rect, "", lambda: self.go_to("SETTINGS"))
+        btn.draw(self.canvas, self.font_medium)
+        self.buttons.append(btn)
+        cx, cy = rect.center
+        import math
+        for k in range(8):
+            a = k * math.pi / 4
+            pygame.draw.line(
+                self.canvas, TEXT,
+                (cx + 9 * math.cos(a), cy + 9 * math.sin(a)),
+                (cx + 16 * math.cos(a), cy + 16 * math.sin(a)), 5,
+            )
+        pygame.draw.circle(self.canvas, TEXT, (cx, cy), 12)
+        pygame.draw.circle(self.canvas, PANEL_BG, (cx, cy), 5)
 
     def _draw_shutdown_x(self):
         btn = Button((LOGICAL_WIDTH - 58, 6, 52, 52), "X", self.request_shutdown)
@@ -817,7 +893,7 @@ class App:
         self.canvas.blit(vol_label, vol_label.get_rect(center=(320, 315)))
 
     def draw_list_screen(self, items, title, row_labels, on_row_tap,
-                          extra_buttons, scroll_key, empty_message):
+                          extra_buttons, scroll_key, empty_message, checked_fn=None):
         self.canvas.fill(BG)
         self.buttons = []
 
@@ -866,7 +942,10 @@ class App:
             row_rect = pygame.Rect(15, y, LOGICAL_WIDTH - 30, row_height - 8)
             row_rects.append(row_rect)
 
-            selected = on_row_tap == self.toggle_selected and item[0] in self.selected_ids
+            if checked_fn is not None:
+                selected = checked_fn(item)
+            else:
+                selected = on_row_tap == self.toggle_selected and item[0] in self.selected_ids
             bg = PANEL_SELECTED if selected else PANEL_BG
             pygame.draw.rect(self.canvas, bg, row_rect, border_radius=8)
             pygame.draw.rect(self.canvas, BORDER, row_rect, width=1, border_radius=8)
@@ -875,7 +954,7 @@ class App:
 
             # Episodes rows get a real checkbox in its own column, so it
             # stays put while a long title scrolls beside it.
-            has_checkbox = on_row_tap == self.toggle_selected
+            has_checkbox = checked_fn is not None or on_row_tap == self.toggle_selected
             text_left = row_rect.left + 15
             if has_checkbox:
                 box = pygame.Rect(0, 0, 36, 36)
@@ -1078,6 +1157,8 @@ class App:
             self.draw_shows()
         elif self.state == "EPISODES":
             self.draw_episodes()
+        elif self.state == "SETTINGS":
+            self.draw_settings()
         elif self.state == "CHECKING":
             self.draw_checking()
         elif self.state == "SHUTDOWN":
@@ -1089,6 +1170,7 @@ class App:
                 and not self.confirm_delete
                 and not self.confirm_shutdown):
             self._draw_shutdown_x()
+            self._draw_gear()
 
         if self.confirm_shutdown:
             self._draw_confirm_shutdown()
@@ -1115,7 +1197,7 @@ class App:
                 btn.action()
                 return
 
-        if self.state in ("SHOWS", "EPISODES"):
+        if self.state in ("SHOWS", "EPISODES", "SETTINGS"):
             rects = getattr(self, "_current_row_rects", [])
             rows = getattr(self, "_current_rows", [])
             for rect, item in zip(rects, rows):
@@ -1124,8 +1206,8 @@ class App:
                     return
 
     def handle_scroll(self, dy):
-        key = "EPISODES" if self.state == "EPISODES" else "SHOWS"
-        if self.state in ("SHOWS", "EPISODES"):
+        key = self.state if self.state in ("EPISODES", "SETTINGS") else "SHOWS"
+        if self.state in ("SHOWS", "EPISODES", "SETTINGS"):
             self.scroll_offset[key] -= dy
             reset_marquee()
 

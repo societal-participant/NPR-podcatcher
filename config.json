@@ -5,20 +5,17 @@
     "feed_timeout": 15,
     "audio_directory": "/home/pi/npr/audio"
   },
-
   "shows": {
     "up-first": {
       "name": "Up First",
       "feed": "https://feeds.npr.org/510318/podcast.xml",
       "enabled": true
     },
-
     "news-now": {
       "name": "NPR News Now",
       "feed": "https://feeds.npr.org/500005/podcast.xml",
       "enabled": true
     },
-
     "consider-this": {
       "name": "Consider This",
       "feed": "https://feeds.npr.org/510355/podcast.xml",

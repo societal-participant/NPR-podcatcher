@@ -58,7 +58,7 @@ CONFIG_FILE = os.path.join(BASE_DIR, "config.json")
 # Override this per your actual hardware by setting "audio_filter" under
 # "settings" in config.json - no code changes needed to retune it.
 DEFAULT_AUDIO_FILTER = (
-    "volume=0dB,"
+    "volume=-2dB,"
     "highpass=f=200,"
     "bass=g=-8:f=220:width_type=o:width=0.8,"
     "equalizer=f=430:width_type=o:width=1.6:g=-6,"
