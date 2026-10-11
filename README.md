@@ -284,6 +284,7 @@ python3 gui.py
 Soon after, you should see the splash screen. It stays for about 5 seconds, or longer
 if the audio engine is still starting. Then, the main menu. 
 
+---
 
 ## Using the App
 
@@ -405,10 +406,10 @@ Put the SD card in another computer, open `cmdline.txt` on the boot partition, a
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4NDkwMzM5NjksMTk5NDE4MzU0MSw1NT
-Y4NTYwNDksLTE3Mzk3NjQwNjQsMTYyMDA3OTQwMSwxMTI2NTE4
-MjA5LC0xMTUzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMy
-w3NjQzODQyODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgz
-NjEyODkwLC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0Nz
-Q4MSwtMTc3OTM0OTY5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbMTU2MTEwMDMzMCwxOTk0MTgzNTQxLDU1Nj
+g1NjA0OSwtMTczOTc2NDA2NCwxNjIwMDc5NDAxLDExMjY1MTgy
+MDksLTExNTMwNjk4MzAsLTE1NDM1NTkxNjIsMzMyODkxMjMzLD
+c2NDM4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2
+MTI4OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3ND
+gxLC0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
 -->
