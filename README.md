@@ -284,23 +284,19 @@ python3 gui.py
 Soon after, you should see the splash screen. It stays for about 5 seconds, or longer
 if the audio engine is still starting. Then, the main menu. 
 
+
 ## Using the App
+
 The main menu shows the following options:
 - **Check for New Episodes:** downloads new episodes. A live log shows
-  progress.
+progress.
 - **Listen to Recorded Shows:** pick a show, then tap episodes to check them. **Play (n)** plays the checked episodes back to back, **Delete (n)** removes them, and **Cleanup Played** removes everything you have
 already listened to.
-- **Now Playing:** play/pause, back 30 seconds, forward 30 seconds, and
-the elapsed and total time (for example `0:35 / 2:25`). The Now Playing
-button appears on the main menu once something has loaded.
-- **Episode lengths:** each episode row shows its length, for example
-`NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
-- **Shutting down safely:** tap the small **X** in the top-right corner of the
-main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug
-the power once the green light stops blinking. This is safer than just
-pulling the plug, which can corrupt the SD card.
-- Playback position is saved every few seconds, so the Pi resumes where
-you left off after a power cut.
+- **Now Playing:** play/pause, back 30 seconds, forward 30 seconds, and the elapsed and total time (for example `0:35 / 2:25`). The Now Playing button appears on the main menu once something has loaded.
+- **Episode lengths:** each episode row shows its length, for example `NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
+- **Enabling or Disabling shows:** tap the small gear icon in the top-left corner of the main menu. On the next screen, tap a show to enable or disable it.
+- **Shutting down safely:** tap the small **X** in the top-right corner of the main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug the power once the green light stops blinking. This is safer than just pulling the plug, which can corrupt the SD card.
+- Playback position is saved every few seconds, so the Pi resumes where you left off after a power cut.
 - Deleted episodes are remembered and will not download again.
 
 Stop the app with **Ctrl+C**. Only run one copy at a time — never run
@@ -409,10 +405,10 @@ Put the SD card in another computer, open `cmdline.txt` on the boot partition, a
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTk5NDE4MzU0MSw1NTY4NTYwNDksLTE3Mz
-k3NjQwNjQsMTYyMDA3OTQwMSwxMTI2NTE4MjA5LC0xMTUzMDY5
-ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQyODIsLT
-ExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC0xMTYz
-MDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0OT
-Y5OSwtNjM0MTEzMjVdfQ==
+eyJoaXN0b3J5IjpbLTE4NDkwMzM5NjksMTk5NDE4MzU0MSw1NT
+Y4NTYwNDksLTE3Mzk3NjQwNjQsMTYyMDA3OTQwMSwxMTI2NTE4
+MjA5LC0xMTUzMDY5ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMy
+w3NjQzODQyODIsLTExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgz
+NjEyODkwLC0xMTYzMDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0Nz
+Q4MSwtMTc3OTM0OTY5OSwtNjM0MTEzMjVdfQ==
 -->
