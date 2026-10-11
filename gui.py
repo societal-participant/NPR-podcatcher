@@ -575,7 +575,7 @@ class App:
         self._current_row_action = lambda item: self.toggle_show_enabled(item[0])
 
     def _draw_gear(self):
-        rect = pygame.Rect(LOGICAL_WIDTH - 58 - 52 - 10, 6, 52, 52)
+        rect = pygame.Rect(6,6,52,52)
         btn = Button(rect, "", lambda: self.go_to("SETTINGS"))
         btn.draw(self.canvas, self.font_medium)
         self.buttons.append(btn)
