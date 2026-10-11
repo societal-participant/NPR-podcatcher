@@ -288,24 +288,22 @@ if the audio engine is still starting. Then, the main menu.
 The main menu shows the following options:
 - **Check for New Episodes:** downloads new episodes. A live log shows
   progress.
-- **Listen to Recorded Shows:** pick a show, then tap episodes to check
-  them. **Play (n)** plays the checked episodes back to back, **Delete
-  (n)** removes them, and **Cleanup Played** removes everything you have
-  already listened to.
+- **Listen to Recorded Shows:** pick a show, then tap episodes to check them. **Play (n)** plays the checked episodes back to back, **Delete (n)** removes them, and **Cleanup Played** removes everything you have
+already listened to.
 - **Now Playing:** play/pause, back 30 seconds, forward 30 seconds, and
-  the elapsed and total time (for example `0:35 / 2:25`). The Now Playing
-  button appears on the main menu once something has loaded.
+the elapsed and total time (for example `0:35 / 2:25`). The Now Playing
+button appears on the main menu once something has loaded.
 - **Episode lengths:** each episode row shows its length, for example
-  `NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
+`NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
 - **Shutting down safely:** tap the small **X** in the top-right corner of the
-  main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug
-  the power once the green light stops blinking. This is safer than just
-  pulling the plug, which can corrupt the SD card.
+main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug
+the power once the green light stops blinking. This is safer than just
+pulling the plug, which can corrupt the SD card.
 - Playback position is saved every few seconds, so the Pi resumes where
-  you left off after a power cut.
+you left off after a power cut.
 - Deleted episodes are remembered and will not download again.
 
-Stop it with **Ctrl+C**. Only run one copy at a time — never run
+Stop the app with **Ctrl+C**. Only run one copy at a time — never run
 `gui.py` by hand while the auto-start service (next step) is running.
 
 ---
@@ -405,16 +403,16 @@ Put the SD card in another computer, open `cmdline.txt` on the boot partition, a
 - `gui.py` is the only program you run. It loads `player.py` and `downloader.py` as modules, so there is exactly one place that controls mpv and one that checks feeds.
 - Playback uses `mpv`, controlled over a local socket (`/tmp/npr-mpv.sock`). Its own error output goes to `/tmp/npr-mpv.log`.
 - Playback state (episodes, played flags, saved positions) is kept in the SQLite database `npr.db` in the project folder.
-- The audio equaliser filter that shapes the sound for a small speaker is `DEFAULT_AUDIO_FILTER` near the top of `player.py`. It can be retuned without touching any other code.
+- The audio equalizer filter that shapes the sound for a small speaker is `DEFAULT_AUDIO_FILTER` near the top of `player.py`. It can be retuned without touching any other code.
 
 
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTU2ODU2MDQ5LC0xNzM5NzY0MDY0LDE2Mj
-AwNzk0MDEsMTEyNjUxODIwOSwtMTE1MzA2OTgzMCwtMTU0MzU1
-OTE2MiwzMzI4OTEyMzMsNzY0Mzg0MjgyLC0xMTQ1OTE4NjYwLD
-E0MTcyNzA2MDEsLTI4MzYxMjg5MCwtMTE2MzAxNjc3OCwyMDE1
-NDA3NDEzLC0xOTAyNDc0ODEsLTE3NzkzNDk2OTksLTYzNDExMz
-I1XX0=
+eyJoaXN0b3J5IjpbMTk5NDE4MzU0MSw1NTY4NTYwNDksLTE3Mz
+k3NjQwNjQsMTYyMDA3OTQwMSwxMTI2NTE4MjA5LC0xMTUzMDY5
+ODMwLC0xNTQzNTU5MTYyLDMzMjg5MTIzMyw3NjQzODQyODIsLT
+ExNDU5MTg2NjAsMTQxNzI3MDYwMSwtMjgzNjEyODkwLC0xMTYz
+MDE2Nzc4LDIwMTU0MDc0MTMsLTE5MDI0NzQ4MSwtMTc3OTM0OT
+Y5OSwtNjM0MTEzMjVdfQ==
 -->
