@@ -41,7 +41,7 @@ The podcatcher uses Raspberry Pi Bookworm Lite OS.
 
 ---
 
-## Installing the Operating System
+### Installing the Operating System
 
 1. On your computer, install **Raspberry Pi Imager**
    (<https://www.raspberrypi.com/software/>).
@@ -63,7 +63,7 @@ The podcatcher uses Raspberry Pi Bookworm Lite OS.
 
 ---
 
-## Powering on for the First Time
+### Powering on for the First Time
 
 After turning on the Pi, wait a few minutes for the first boot, then from your computer:
 1. Enter the following command:
@@ -85,7 +85,7 @@ bug that can cause a kernel panic during large installs. If it crashes during `a
 
 ---
 
-## Connecting the Screen
+### Connecting the Screen
 
 The Waveshare 2.8" DPI LCD plugs onto the Pi's 40-pin GPIO header and uses the DPI (parallel) interface, set up through device tree overlays.
 
@@ -110,7 +110,7 @@ To install and configure the display:
 
 ---
 
-## Wiring the Audio
+### Wiring the Audio
 
 The signal path is as follows:
 
@@ -143,7 +143,7 @@ Do all wiring and assembling with the Pi **powered off**.
 
 ---
 
-## Installing Software
+### Installing Software
 
 Complete the following steps to install the software needed for this project:
 
@@ -170,7 +170,7 @@ Everything else that the project uses comes with Python.
 
 ---
 
-## Download the Project
+### Download the Project from Github
 
 Run the following command. This creates a directory for the project, and downloads the project files into that folder.
 
@@ -198,7 +198,7 @@ by `audio_directory` in `config.json` (`/home/pi/npr/audio` by default).
 
 ---
 
-## Testing the Audio
+### Testing the Audio
 Complete the following steps to test the audio:
 
 1. Run the following command to confirm that the Pi sees the USB adapter:
@@ -225,7 +225,7 @@ The app plays through `alsa/plughw:CARD=Device,DEV=0`, the adapter's default nam
 
 ---
 
-## Choosing Your Shows
+### Choosing Your Shows
 
 To choose your shows, run the following command to open `config.json`:
 `cd npr`
@@ -273,7 +273,7 @@ The show list that is included with the project is a starting point; change it t
 
 ---
 
-## Testing the App
+### Testing the App
 Test running the app manually by running the following command:
 
 ```
@@ -286,26 +286,7 @@ if the audio engine is still starting. Then, the main menu.
 
 ---
 
-## Using the App
-
-The main menu shows the following options:
-- **Check for New Episodes:** downloads new episodes. A live log shows
-progress.
-- **Listen to Recorded Shows:** pick a show, then tap episodes to check them. **Play (n)** plays the checked episodes back to back, **Delete (n)** removes them, and **Cleanup Played** removes everything you have
-already listened to.
-- **Now Playing:** play/pause, back 30 seconds, forward 30 seconds, and the elapsed and total time (for example `0:35 / 2:25`). The Now Playing button appears on the main menu once something has loaded.
-- **Episode lengths:** each episode row shows its length, for example `NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
-- **Enabling or Disabling shows:** tap the small gear icon in the top-left corner of the main menu. On the next screen, tap a show to enable or disable it.
-- **Shutting down safely:** tap the small **X** in the top-right corner of the main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug the power once the green light stops blinking. This is safer than just pulling the plug, which can corrupt the SD card.
-- Playback position is saved every few seconds, so the Pi resumes where you left off after a power cut.
-- Deleted episodes are remembered and will not download again.
-
-Stop the app with **Ctrl+C**. Only run one copy at a time — never run
-`gui.py` by hand while the auto-start service (next step) is running.
-
----
-
-## Configuring Auto-Start at Boot
+### Configuring Auto-Start at Boot
 
 The following instructions explain how to make it so the Pi auctomatically runs the podcatcher app after booting.
 
@@ -355,6 +336,25 @@ The following instructions explain how to make it so the Pi auctomatically runs 
    ```
 
 Because the service waits for WiFi to connect, the screen stays blank for a while at boot. If the screen shows nothing after a couple of minutes, see Troubleshooting.
+ 
+ ---
+
+## Using the App
+
+The main menu shows the following options:
+- **Check for New Episodes:** downloads new episodes. A live log shows
+progress.
+- **Listen to Recorded Shows:** pick a show, then tap episodes to check them. **Play (n)** plays the checked episodes back to back, **Delete (n)** removes them, and **Cleanup Played** removes everything you have
+already listened to.
+- **Now Playing:** play/pause, back 30 seconds, forward 30 seconds, and the elapsed and total time (for example `0:35 / 2:25`). The Now Playing button appears on the main menu once something has loaded.
+- **Episode lengths:** each episode row shows its length, for example `NEW - 14:32`, or `2:05 / 14:32` if you are partway through.
+- **Enabling or Disabling shows:** tap the small gear icon in the top-left corner of the main menu. On the next screen, tap a show to enable or disable it.
+- **Shutting down safely:** tap the small **X** in the top-right corner of the main menu, then **Yes**. The Pi saves your place and shows "Shutting down..."; unplug the power once the green light stops blinking. This is safer than just pulling the plug, which can corrupt the SD card.
+- Playback position is saved every few seconds, so the Pi resumes where you left off after a power cut.
+- Deleted episodes are remembered and will not download again.
+
+Stop the app with **Ctrl+C**. Only run one copy at a time — never run
+`gui.py` by hand while the auto-start service (next step) is running.
 
 ---
 
@@ -406,10 +406,11 @@ Put the SD card in another computer, open `cmdline.txt` on the boot partition, a
 
 > Written with [StackEdit](https://stackedit.io/).
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTU2MTEwMDMzMCwxOTk0MTgzNTQxLDU1Nj
-g1NjA0OSwtMTczOTc2NDA2NCwxNjIwMDc5NDAxLDExMjY1MTgy
-MDksLTExNTMwNjk4MzAsLTE1NDM1NTkxNjIsMzMyODkxMjMzLD
-c2NDM4NDI4MiwtMTE0NTkxODY2MCwxNDE3MjcwNjAxLC0yODM2
-MTI4OTAsLTExNjMwMTY3NzgsMjAxNTQwNzQxMywtMTkwMjQ3ND
-gxLC0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+eyJoaXN0b3J5IjpbLTExOTUzMDQ0MTUsMTU2MTEwMDMzMCwxOT
+k0MTgzNTQxLDU1Njg1NjA0OSwtMTczOTc2NDA2NCwxNjIwMDc5
+NDAxLDExMjY1MTgyMDksLTExNTMwNjk4MzAsLTE1NDM1NTkxNj
+IsMzMyODkxMjMzLDc2NDM4NDI4MiwtMTE0NTkxODY2MCwxNDE3
+MjcwNjAxLC0yODM2MTI4OTAsLTExNjMwMTY3NzgsMjAxNTQwNz
+QxMywtMTkwMjQ3NDgxLC0xNzc5MzQ5Njk5LC02MzQxMTMyNV19
+
 -->
